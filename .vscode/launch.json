@@ -1,0 +1,21 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Flutter (Development)",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "--dart-define=STUDENT_API_BASE_URL=http://localhost:10000"
+            ]
+        },
+        {
+            "name": "Flutter (Render Backend)",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "--dart-define=STUDENT_API_BASE_URL=https://alumno-backend-node.onrender.com"
+            ]
+        }
+    ]
+}

@@ -6,7 +6,7 @@ import 'session.dart';
 /// API Service for the UAGro Carnet App
 /// Provides read-only access to student carnet and appointment data
 class ApiService {
-  static const String _defaultBaseUrl = 'http://localhost:10000';
+  static const String _defaultBaseUrl = 'https://alumno-backend-node.onrender.com';
   final String baseUrl;
   final Duration timeoutDuration;
   String? _authToken;
