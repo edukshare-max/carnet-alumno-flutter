@@ -7,7 +7,6 @@ import 'session.dart';
 /// Provides read-only access to student carnet and appointment data
 class ApiService {
   static const String _defaultBaseUrl = 'https://alumno-backend-node.onrender.com';
-  static const String _corsProxyUrl = 'https://cors-anywhere.herokuapp.com/';
   final String baseUrl;
   final Duration timeoutDuration;
   String? _authToken;
@@ -23,14 +22,23 @@ class ApiService {
     }
   }
 
-  /// Get proxied URL for CORS-enabled requests
-  String _getProxiedUrl(String endpoint) {
-    // For now, try direct connection and let's see if backend has been configured
-    final directUrl = '$baseUrl$endpoint';
-    if (kDebugMode) {
-      print('Using direct URL: $directUrl');
+  /// Get URL with CORS handling for web deployment
+  String _getRequestUrl(String endpoint) {
+    // For web deployment, use AllOrigins proxy to handle CORS
+    if (kIsWeb) {
+      final targetUrl = Uri.encodeComponent('$baseUrl$endpoint');
+      final proxiedUrl = 'https://api.allorigins.win/raw?url=$targetUrl';
+      if (kDebugMode) {
+        print('Using AllOrigins proxy: $proxiedUrl');
+      }
+      return proxiedUrl;
+    } else {
+      final directUrl = '$baseUrl$endpoint';
+      if (kDebugMode) {
+        print('Using direct URL: $directUrl');
+      }
+      return directUrl;
     }
-    return directUrl;
   }
 
   /// Get base URL (reads from STUDENT_API_BASE_URL environment or uses default)
@@ -65,7 +73,7 @@ class ApiService {
     }
 
     try {
-      final url = _getProxiedUrl('/auth/login');
+      final url = _getRequestUrl('/auth/login');
       final body = json.encode({
         'email': email.trim().toLowerCase(),
         'matricula': matricula.trim(),
@@ -180,7 +188,7 @@ class ApiService {
     }
 
     try {
-      final url = _getProxiedUrl('/me/carnet');
+      final url = _getRequestUrl('/me/carnet');
       final response = await http.get(
         Uri.parse(url),
         headers: _headers,
@@ -213,7 +221,7 @@ class ApiService {
     }
 
     try {
-      final url = _getProxiedUrl('/me/citas');
+      final url = _getRequestUrl('/me/citas');
       final response = await http.get(
         Uri.parse(url),
         headers: _headers,
@@ -240,7 +248,7 @@ class ApiService {
   /// Get carnet data using stored token
   Future<Map<String, dynamic>?> getMyCarnet(String token) async {
     try {
-      final url = _getProxiedUrl('/me/carnet');
+      final url = _getRequestUrl('/me/carnet');
       final response = await http.get(
         Uri.parse(url),
         headers: {
@@ -270,7 +278,7 @@ class ApiService {
   /// Get citas data using stored token
   Future<List<Map<String, dynamic>>> getMyCitas(String token) async {
     try {
-      final url = _getProxiedUrl('/me/citas');
+      final url = _getRequestUrl('/me/citas');
       final response = await http.get(
         Uri.parse(url),
         headers: {
