@@ -17,7 +17,7 @@ concurrency:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     
     steps:
       - name: Checkout
@@ -27,8 +27,14 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          flutter-version: '3.24.3'
+          flutter-version: '3.22.0'
           cache: true
+
+      - name: Enable web platform
+        run: flutter config --enable-web
+
+      - name: Clean project
+        run: flutter clean
 
       - name: Get dependencies
         run: flutter pub get
