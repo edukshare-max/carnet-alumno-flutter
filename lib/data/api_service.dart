@@ -7,7 +7,7 @@ import 'session.dart';
 /// Provides read-only access to student carnet and appointment data
 class ApiService {
   static const String _defaultBaseUrl = 'https://alumno-backend-node.onrender.com';
-  static const String _corsProxyUrl = 'https://corsproxy.io/?';
+  static const String _corsProxyUrl = 'https://cors-anywhere.herokuapp.com/';
   final String baseUrl;
   final Duration timeoutDuration;
   String? _authToken;
@@ -25,24 +25,12 @@ class ApiService {
 
   /// Get proxied URL for CORS-enabled requests
   String _getProxiedUrl(String endpoint) {
-    // Check if we need CORS proxy (production web deployment)
-    final needsProxy = kIsWeb && 
-                      !baseUrl.startsWith('http://localhost') && 
-                      !baseUrl.startsWith('http://127.0.0.1');
-    
-    if (needsProxy) {
-      final proxiedUrl = '$_corsProxyUrl$baseUrl$endpoint';
-      if (kDebugMode) {
-        print('Using CORS proxy: $proxiedUrl');
-      }
-      return proxiedUrl;
-    } else {
-      final directUrl = '$baseUrl$endpoint';
-      if (kDebugMode) {
-        print('Using direct URL: $directUrl');
-      }
-      return directUrl;
+    // For now, try direct connection and let's see if backend has been configured
+    final directUrl = '$baseUrl$endpoint';
+    if (kDebugMode) {
+      print('Using direct URL: $directUrl');
     }
+    return directUrl;
   }
 
   /// Get base URL (reads from STUDENT_API_BASE_URL environment or uses default)
