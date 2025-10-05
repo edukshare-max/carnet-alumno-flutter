@@ -82,19 +82,30 @@ class ApiService {
           print('Login response: $data');
         }
         
-        final token = (data['access_token'] ?? data['accessToken'] ?? data['token'] ?? data['jwt'] ?? '').toString();
-        
-        if (kDebugMode) {
-          print('Extracted token: $token');
+        // Defensive token extraction - handle multiple response formats
+        String? token;
+        if (data is Map<String, dynamic>) {
+          // Try each possible token field with null safety
+          final rawToken = data['access_token'] ?? 
+                          data['accessToken'] ?? 
+                          data['token'] ?? 
+                          data['jwt'];
+          
+          // Convert to string only if not null and handle whitespace
+          token = rawToken?.toString().trim();
         }
         
-        if (token.isNotEmpty) {
+        if (kDebugMode) {
+          print('Extracted token: ${token?.isNotEmpty == true ? '[TOKEN_PRESENT]' : '[EMPTY]'}');
+        }
+        
+        if (token?.isNotEmpty == true) {
           // Store the token for future requests
-          _authToken = token;
+          _authToken = token!;
           return {'token': token};
         } else {
           if (kDebugMode) {
-            print('Token is empty after parsing');
+            print('Token extraction failed - data type: ${data.runtimeType}');
           }
         }
       } else if (response.statusCode == 401) {
