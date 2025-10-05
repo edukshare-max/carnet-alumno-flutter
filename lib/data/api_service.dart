@@ -60,6 +60,11 @@ class ApiService {
         'matricula': matricula.trim(),
       });
 
+      if (kDebugMode) {
+        print('Login URL: $url');
+        print('Login payload: $body');
+      }
+
       final response = await http.post(
         Uri.parse(url),
         headers: {
@@ -72,12 +77,25 @@ class ApiService {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         
+        // Debug: Print response data
+        if (kDebugMode) {
+          print('Login response: $data');
+        }
+        
         final token = ((data['access_token'] ?? data['accessToken'] ?? data['token'] ?? data['jwt']) ?? '').toString();
+        
+        if (kDebugMode) {
+          print('Extracted token: $token');
+        }
         
         if (token.isNotEmpty) {
           // Store the token for future requests
           _authToken = token;
           return {'token': token};
+        } else {
+          if (kDebugMode) {
+            print('Token is empty after parsing');
+          }
         }
       } else if (response.statusCode == 401) {
         print('Login failed: Invalid credentials');
