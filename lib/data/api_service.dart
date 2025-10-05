@@ -61,8 +61,8 @@ class ApiService {
       });
 
       if (kDebugMode) {
-        print('Login URL: $url');
-        print('Login payload: $body');
+        print('🚀 LOGIN START - URL: $url');
+        print('📤 PAYLOAD: $body');
       }
 
       final response = await http.post(
@@ -74,52 +74,91 @@ class ApiService {
         body: body,
       ).timeout(timeoutDuration);
 
+      if (kDebugMode) {
+        print('📡 RESPONSE STATUS: ${response.statusCode}');
+        print('📡 RESPONSE HEADERS: ${response.headers}');
+        print('📡 RESPONSE BODY RAW: ${response.body}');
+      }
+
       if (response.statusCode == 200) {
+        if (kDebugMode) {
+          print('✅ STATUS 200 - Attempting JSON decode...');
+        }
+        
         final data = json.decode(response.body);
         
-        // Debug: Print response data
         if (kDebugMode) {
-          print('Login response: $data');
+          print('✅ JSON DECODED: $data');
+          print('✅ DATA TYPE: ${data.runtimeType}');
         }
         
         // Defensive token extraction - handle multiple response formats
         String? token;
         if (data is Map<String, dynamic>) {
+          if (kDebugMode) {
+            print('✅ DATA IS MAP - Extracting token...');
+          }
+          
           // Try each possible token field with null safety
           final rawToken = data['access_token'] ?? 
                           data['accessToken'] ?? 
                           data['token'] ?? 
                           data['jwt'];
           
+          if (kDebugMode) {
+            print('🔑 RAW TOKEN: ${rawToken?.runtimeType} - ${rawToken != null ? '[EXISTS]' : '[NULL]'}');
+          }
+          
           // Convert to string only if not null and handle whitespace
           token = rawToken?.toString().trim();
-        }
-        
-        if (kDebugMode) {
-          print('Extracted token: ${token?.isNotEmpty == true ? '[TOKEN_PRESENT]' : '[EMPTY]'}');
+          
+          if (kDebugMode) {
+            print('🔑 FINAL TOKEN: ${token != null ? '[LENGTH:${token!.length}]' : '[NULL]'}');
+          }
+        } else {
+          if (kDebugMode) {
+            print('❌ DATA NOT MAP - Type: ${data.runtimeType}');
+          }
         }
         
         if (token?.isNotEmpty == true) {
+          if (kDebugMode) {
+            print('🎉 TOKEN VALID - Storing and returning...');
+          }
           // Store the token for future requests
           _authToken = token!;
-          return {'token': token};
+          final result = {'token': token};
+          if (kDebugMode) {
+            print('🎉 RETURNING RESULT: $result');
+          }
+          return result;
         } else {
           if (kDebugMode) {
-            print('Token extraction failed - data type: ${data.runtimeType}');
+            print('❌ TOKEN EMPTY OR NULL - Failing login');
           }
         }
       } else if (response.statusCode == 401) {
-        print('Login failed: Invalid credentials');
+        if (kDebugMode) {
+          print('❌ STATUS 401 - Invalid credentials from server');
+        }
         return null;
       } else {
-        print('Login failed: Server error ${response.statusCode}');
+        if (kDebugMode) {
+          print('❌ STATUS ${response.statusCode} - Server error');
+        }
         return null;
       }
-    } catch (e) {
-      print('Login error: $e');
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        print('💥 EXCEPTION CAUGHT: $e');
+        print('💥 STACK TRACE: $stackTrace');
+      }
       return null;
     }
     
+    if (kDebugMode) {
+      print('❌ REACHED END - Returning null');
+    }
     return null;
   }
 
