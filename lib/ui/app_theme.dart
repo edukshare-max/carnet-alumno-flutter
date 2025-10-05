@@ -33,13 +33,13 @@ class AppTheme {
       ),
 
       // Card Theme
-      cardTheme: const CardThemeData(
+      cardTheme: CardTheme(
         color: UAgro.white,
         elevation: UAgro.elevationLow,
-        shape: RoundedRectangleBorder(
+        shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(UAgro.radiusMedium)),
         ),
-        margin: EdgeInsets.symmetric(
+        margin: const EdgeInsets.symmetric(
           horizontal: UAgro.spacingMedium,
           vertical: UAgro.spacingSmall,
         ),
