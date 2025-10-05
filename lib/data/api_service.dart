@@ -24,9 +24,8 @@ class ApiService {
 
   /// Get URL with CORS handling for web deployment
   String _getRequestUrl(String endpoint) {
-    if (kDebugMode) {
-      print('🌐 Platform check - kIsWeb: $kIsWeb');
-    }
+    // Always log for debugging (even in production)
+    print('🌐 Platform check - kIsWeb: $kIsWeb');
     
     // Force proxy for production web deployment (GitHub Pages)
     final needsProxy = true; // Force proxy for now to ensure CORS works
@@ -34,15 +33,11 @@ class ApiService {
     if (needsProxy) {
       final targetUrl = Uri.encodeComponent('$baseUrl$endpoint');
       final proxiedUrl = 'https://api.allorigins.win/raw?url=$targetUrl';
-      if (kDebugMode) {
-        print('🔄 Using AllOrigins proxy: $proxiedUrl');
-      }
+      print('🔄 FORCED PROXY: $proxiedUrl');
       return proxiedUrl;
     } else {
       final directUrl = '$baseUrl$endpoint';
-      if (kDebugMode) {
-        print('🎯 Using direct URL: $directUrl');
-      }
+      print('🎯 DIRECT URL: $directUrl');
       return directUrl;
     }
   }
@@ -85,10 +80,9 @@ class ApiService {
         'matricula': matricula.trim(),
       });
 
-      if (kDebugMode) {
-        print('🚀 LOGIN START - URL: $url');
-        print('📤 PAYLOAD: $body');
-      }
+      // Always log critical info (even in production)
+      print('🚀 LOGIN START - URL: $url');
+      print('📤 PAYLOAD: $body');
 
       final response = await http.post(
         Uri.parse(url),
@@ -99,30 +93,24 @@ class ApiService {
         body: body,
       ).timeout(timeoutDuration);
 
-      if (kDebugMode) {
-        print('📡 RESPONSE STATUS: ${response.statusCode}');
-        print('📡 RESPONSE HEADERS: ${response.headers}');
-        print('📡 RESPONSE BODY RAW: ${response.body}');
-      }
+      // Always log response (even in production)
+      print('📡 RESPONSE STATUS: ${response.statusCode}');
+      print('📡 RESPONSE BODY RAW: ${response.body}');
 
       if (response.statusCode == 200) {
-        if (kDebugMode) {
-          print('✅ STATUS 200 - Attempting JSON decode...');
-        }
+        print('✅ STATUS 200 - Attempting JSON decode...');
         
         final data = json.decode(response.body);
         
-        if (kDebugMode) {
-          print('✅ JSON DECODED: $data');
-          print('✅ DATA TYPE: ${data.runtimeType}');
-        }
+        // Always log JSON decode results (even in production)
+        print('✅ JSON DECODED: $data');
+        print('✅ DATA TYPE: ${data.runtimeType}');
         
         // Defensive token extraction - handle multiple response formats
         String? token;
         if (data is Map<String, dynamic>) {
-          if (kDebugMode) {
-            print('✅ DATA IS MAP - Extracting token...');
-          }
+          // Always log token extraction (even in production)
+          print('✅ DATA IS MAP - Extracting token...');
           
           // Try each possible token field with null safety
           final rawToken = data['access_token'] ?? 
@@ -130,16 +118,14 @@ class ApiService {
                           data['token'] ?? 
                           data['jwt'];
           
-          if (kDebugMode) {
-            print('🔑 RAW TOKEN: ${rawToken?.runtimeType} - ${rawToken != null ? '[EXISTS]' : '[NULL]'}');
-          }
+          // Always log token results (even in production) 
+          print('🔑 RAW TOKEN: ${rawToken?.runtimeType} - ${rawToken != null ? '[EXISTS]' : '[NULL]'}');
           
           // Convert to string only if not null and handle whitespace
           token = rawToken?.toString().trim();
           
-          if (kDebugMode) {
-            print('🔑 FINAL TOKEN: ${token != null ? '[LENGTH:${token!.length}]' : '[NULL]'}');
-          }
+          // Always log final token (even in production)
+          print('🔑 FINAL TOKEN: ${token != null ? '[LENGTH:${token!.length}]' : '[NULL]'}');
         } else {
           if (kDebugMode) {
             print('❌ DATA NOT MAP - Type: ${data.runtimeType}');
@@ -153,37 +139,31 @@ class ApiService {
           // Store the token for future requests
           _authToken = token!;
           final result = {'token': token};
-          if (kDebugMode) {
-            print('🎉 RETURNING RESULT: $result');
-          }
+          // Always log success (even in production)
+          print('🎉 RETURNING RESULT: $result');
           return result;
         } else {
-          if (kDebugMode) {
-            print('❌ TOKEN EMPTY OR NULL - Failing login');
-          }
+          // Always log token failure (even in production)
+          print('❌ TOKEN EMPTY OR NULL - Failing login');
         }
       } else if (response.statusCode == 401) {
-        if (kDebugMode) {
-          print('❌ STATUS 401 - Invalid credentials from server');
-        }
+        // Always log 401 errors (even in production)
+        print('❌ STATUS 401 - Invalid credentials from server');
         return null;
       } else {
-        if (kDebugMode) {
-          print('❌ STATUS ${response.statusCode} - Server error');
-        }
+        // Always log other status errors (even in production)
+        print('❌ STATUS ${response.statusCode} - Server error');
         return null;
       }
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        print('💥 EXCEPTION CAUGHT: $e');
-        print('💥 STACK TRACE: $stackTrace');
-      }
+      // Always log exceptions (even in production)
+      print('💥 EXCEPTION CAUGHT: $e');
+      print('💥 STACK TRACE: $stackTrace');
       return null;
     }
     
-    if (kDebugMode) {
-      print('❌ REACHED END - Returning null');
-    }
+    // Always log fallthrough (even in production)
+    print('❌ REACHED END - Returning null');
     return null;
   }
 
