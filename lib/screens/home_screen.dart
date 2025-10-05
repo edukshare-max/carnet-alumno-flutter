@@ -84,21 +84,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// Handle carnet search
   Future<void> _searchCarnet() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    final searchMatricula = _matriculaController.text.trim();
-    
-    // SECURITY: Only allow searching own matricula
-    if (searchMatricula != _userMatricula) {
-      ui_feedback.Feedback.showErr(context, 'Solo puedes consultar tu matrícula');
-      _matriculaController.text = _userMatricula ?? '';
-      return;
-    }
-
     setState(() => _isLoading = true);
 
     try {
-      final carnetData = await _apiService.fetchCarnetByMatricula(searchMatricula);
+      final token = await Session.getToken();
+      if (token == null) {
+        _logout();
+        return;
+      }
+
+      final carnetData = await _apiService.getMyCarnet(token);
       
       if (carnetData != null && mounted) {
         setState(() {
