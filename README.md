@@ -1,6 +1,8 @@
-# carnet_alumno
+# UAGro Carnet Digital
 
 Carnet Alumno - UAGro Student ID App
+
+🌐 **Live App**: https://app.carnetdigital.space
 
 ## Getting Started
 
