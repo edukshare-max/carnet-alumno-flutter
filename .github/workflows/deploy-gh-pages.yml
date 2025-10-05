@@ -15,8 +15,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,33 +27,26 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          # opcional: flutter-version: '3.x'
+          flutter-version: '3.24.3'
+          cache: true
 
-      - name: Flutter version
-        run: flutter --version
-
-      - name: Install deps
+      - name: Get dependencies
         run: flutter pub get
 
-      - name: Build web (Render backend)
+      - name: Build for web
         run: flutter build web --release --dart-define=STUDENT_API_BASE_URL=https://alumno-backend-node.onrender.com
 
-      - name: SPA fallback + CNAME
-        run: |
-          cp build/web/index.html build/web/404.html
-          echo "app.carnetdigital.space" > build/web/CNAME
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
 
-      - name: Upload artifact
+      - name: Create SPA fallback
+        run: cp build/web/index.html build/web/404.html
+
+      - name: Upload to GitHub Pages
         uses: actions/upload-pages-artifact@v3
         with:
           path: build/web
 
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - id: deployment
+      - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4
