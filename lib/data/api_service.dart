@@ -71,10 +71,13 @@ class ApiService {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        if (data is Map<String, dynamic> && data.containsKey('access_token')) {
+        
+        final token = ((data['access_token'] ?? data['accessToken'] ?? data['token'] ?? data['jwt']) ?? '').toString();
+        
+        if (token.isNotEmpty) {
           // Store the token for future requests
-          _authToken = data['access_token'];
-          return {'token': data['access_token']};
+          _authToken = token;
+          return {'token': token};
         }
       } else if (response.statusCode == 401) {
         print('Login failed: Invalid credentials');
