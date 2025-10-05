@@ -82,7 +82,7 @@ class ApiService {
           print('Login response: $data');
         }
         
-        final token = ((data['access_token'] ?? data['accessToken'] ?? data['token'] ?? data['jwt']) ?? '').toString();
+        final token = (data['access_token'] ?? data['accessToken'] ?? data['token'] ?? data['jwt'] ?? '').toString();
         
         if (kDebugMode) {
           print('Extracted token: $token');
