@@ -234,30 +234,32 @@ class CitaCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Debug: mostrar todos los campos disponibles
-    print('DEBUG CitaCard: campos disponibles: ${citaData.keys.toList()}');
-    print('DEBUG CitaCard: datos completos: $citaData');
-    
     // Manejo flexible de campos con múltiples nombres posibles
     final String motivo = citaData['motivo']?.toString() ?? 
                          citaData['tipo']?.toString() ?? 
                          citaData['descripcion']?.toString() ?? 
                          'Sin motivo especificado';
                          
-    final String fecha = citaData['fecha']?.toString() ?? 
-                        citaData['inicio']?.toString()?.split('T')[0] ?? // Para formato ISO
+    // Extraer fecha del campo 'inicio' (formato ISO: 2025-10-05T15:00:00.000Z)
+    final String fecha = _formatearFecha(citaData['inicio']?.toString()) ?? 
+                        citaData['fecha']?.toString() ?? 
                         'N/A';
                         
-    final String horaInicio = citaData['hora_inicio']?.toString() ?? 
+    // Extraer horas de los campos 'inicio' y 'fin'
+    final String horaInicio = _extraerHora(citaData['inicio']?.toString()) ?? 
+                             citaData['hora_inicio']?.toString() ?? 
                              citaData['hora']?.toString() ?? 
-                             citaData['inicio']?.toString()?.split('T')[1]?.split('.')[0] ?? // Para formato ISO
                              '';
                              
-    final String horaFin = citaData['hora_fin']?.toString() ?? '';
+    final String horaFin = _extraerHora(citaData['fin']?.toString()) ?? 
+                          citaData['hora_fin']?.toString() ?? 
+                          '';
     
     final String estado = citaData['estado']?.toString() ?? 
                          citaData['status']?.toString() ?? 
                          'Pendiente';
+                         
+    final String departamento = citaData['departamento']?.toString() ?? '';
     
     String horario = '';
     if (horaInicio.isNotEmpty && horaFin.isNotEmpty) {
@@ -352,6 +354,29 @@ class CitaCard extends StatelessWidget {
               ],
             ],
           ),
+          // Mostrar departamento si está disponible
+          if (departamento.isNotEmpty) ...[
+            const SizedBox(height: UAgro.spacingSmall),
+            Row(
+              children: [
+                Icon(
+                  Icons.business,
+                  size: 16,
+                  color: UAgro.textSecondary,
+                ),
+                const SizedBox(width: UAgro.spacingSmall),
+                Expanded(
+                  child: Text(
+                    departamento,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: UAgro.textSecondary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
           // Mostrar ubicación si está disponible
           if (citaData['ubicacion']?.toString().isNotEmpty == true) ...[
             const SizedBox(height: UAgro.spacingSmall),
@@ -399,5 +424,55 @@ class CitaCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  /// Formatear fecha desde formato ISO a formato legible en español
+  String? _formatearFecha(String? fechaISO) {
+    if (fechaISO == null || fechaISO.isEmpty) return null;
+    
+    try {
+      final DateTime fecha = DateTime.parse(fechaISO);
+      final List<String> meses = [
+        'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+        'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+      ];
+      
+      final List<String> dias = [
+        'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'
+      ];
+      
+      final String diaSemana = dias[fecha.weekday - 1];
+      final String mes = meses[fecha.month - 1];
+      
+      return '$diaSemana ${fecha.day} de $mes ${fecha.year}';
+    } catch (e) {
+      print('Error al formatear fecha: $e');
+      return fechaISO.split('T')[0]; // Fallback: solo la parte de fecha
+    }
+  }
+
+  /// Extraer hora desde formato ISO (ej: "2025-10-05T15:00:00.000Z" -> "15:00")
+  String? _extraerHora(String? fechaISO) {
+    if (fechaISO == null || fechaISO.isEmpty) return null;
+    
+    try {
+      final DateTime fecha = DateTime.parse(fechaISO);
+      final String hora = fecha.hour.toString().padLeft(2, '0');
+      final String minuto = fecha.minute.toString().padLeft(2, '0');
+      return '$hora:$minuto';
+    } catch (e) {
+      print('Error al extraer hora: $e');
+      // Fallback: intentar extraer manualmente
+      if (fechaISO.contains('T')) {
+        final String timePart = fechaISO.split('T')[1];
+        if (timePart.contains(':')) {
+          final List<String> parts = timePart.split(':');
+          if (parts.length >= 2) {
+            return '${parts[0]}:${parts[1]}';
+          }
+        }
+      }
+      return null;
+    }
   }
 }

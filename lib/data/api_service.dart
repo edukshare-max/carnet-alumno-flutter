@@ -288,26 +288,15 @@ class ApiService {
         },
       ).timeout(timeoutDuration);
 
-      print('DEBUG: getMyCitas response status: ${response.statusCode}');
-      print('DEBUG: getMyCitas response body: ${response.body}');
-
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        print('DEBUG: getMyCitas parsed data: $data');
         if (data is List) {
-          print('DEBUG: getMyCitas data is list with ${data.length} items');
-          if (data.isNotEmpty) {
-            print('DEBUG: First cita structure: ${data.first}');
-            print('DEBUG: Available fields: ${data.first.keys.toList()}');
-          }
           return data.cast<Map<String, dynamic>>();
         }
       } else if (response.statusCode == 401) {
         // Session expired - clear token and return empty list
         await _handleSessionExpired();
         return [];
-      } else {
-        print('DEBUG: getMyCitas unexpected status code: ${response.statusCode}');
       }
     } catch (e) {
       print('Error getting citas: $e');
