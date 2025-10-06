@@ -429,45 +429,113 @@ class _HomeScreenState extends State<HomeScreen> {
       return const SizedBox.shrink(); // Return empty widget instead of crashing
     }
     
-    print('✅ BUILD CARNET DISPLAY - Creating CarnetView');
+    print('✅ BUILD CARNET DISPLAY - Creating SIMPLIFIED CarnetView');
     
-    // TEMPORARY: Simple widget instead of CarnetView to test
+    // SIMPLIFIED CarnetView implementation
     return Card(
       margin: const EdgeInsets.all(16),
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'CARNET TEMPORAL - DATOS CARGADOS EXITOSAMENTE',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: UAgro.primaryBlue,
+            // Header
+            Row(
+              children: [
+                Icon(Icons.badge, color: UAgro.primaryBlue, size: 32),
+                const SizedBox(width: 12),
+                Text(
+                  'Carnet Universitario',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: UAgro.primaryBlue,
+                  ),
+                ),
+              ],
+            ),
+            const Divider(height: 24),
+            
+            // Student Info
+            _buildInfoRow('Nombre', carnetData['nombreCompleto']?.toString() ?? 'N/A'),
+            _buildInfoRow('Matrícula', carnetData['matricula']?.toString() ?? 'N/A'),
+            _buildInfoRow('Programa', carnetData['programa']?.toString() ?? 'N/A'),
+            _buildInfoRow('Email', carnetData['correo']?.toString() ?? 'N/A'),
+            _buildInfoRow('Edad', '${carnetData['edad']?.toString() ?? 'N/A'} años'),
+            _buildInfoRow('Género', carnetData['sexo']?.toString() ?? 'N/A'),
+            _buildInfoRow('Categoría', carnetData['categoria']?.toString() ?? 'N/A'),
+            
+            const SizedBox(height: 16),
+            
+            // Health Info Section
+            if (carnetData['tipoSangre'] != null) ...[
+              Text(
+                'Información Médica',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: UAgro.primaryBlue,
+                ),
               ),
-            ),
+              const SizedBox(height: 8),
+              _buildInfoRow('Tipo de Sangre', carnetData['tipoSangre']?.toString() ?? 'N/A'),
+              if (carnetData['alergias'] != null)
+                _buildInfoRow('Alergias', carnetData['alergias']?.toString() ?? 'N/A'),
+              if (carnetData['enfermedadCronica'] != null)
+                _buildInfoRow('Enfermedad Crónica', carnetData['enfermedadCronica']?.toString() ?? 'N/A'),
+            ],
+            
             const SizedBox(height: 16),
-            Text('Nombre: ${carnetData['nombreCompleto'] ?? 'N/A'}'),
-            Text('Matrícula: ${carnetData['matricula'] ?? 'N/A'}'),
-            Text('Programa: ${carnetData['programa'] ?? 'N/A'}'),
-            Text('Email: ${carnetData['correo'] ?? 'N/A'}'),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                print('🔍 DATOS COMPLETOS: $carnetData');
-              },
-              child: const Text('Ver Datos Completos en Console'),
-            ),
+            
+            // Emergency Contact
+            if (carnetData['emergenciaContacto'] != null) ...[
+              Text(
+                'Contacto de Emergencia',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: UAgro.primaryBlue,
+                ),
+              ),
+              const SizedBox(height: 8),
+              _buildInfoRow('Contacto', carnetData['emergenciaContacto']?.toString() ?? 'N/A'),
+              if (carnetData['emergenciaTelefono'] != null)
+                _buildInfoRow('Teléfono', carnetData['emergenciaTelefono']?.toString() ?? 'N/A'),
+            ],
           ],
         ),
       ),
     );
-    
-    // Original code commented out for testing:
-    // return CarnetView(
-    //   carnetData: carnetData,
-    //   matricula: matricula,
-    // );
+  }
+  
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 120,
+            child: Text(
+              '$label:',
+              style: const TextStyle(
+                fontWeight: FontWeight.w500,
+                color: Colors.black87,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(
+                color: Colors.black54,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
