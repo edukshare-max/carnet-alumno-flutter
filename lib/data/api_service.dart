@@ -24,20 +24,25 @@ class ApiService {
 
   /// Get URL with CORS handling for web deployment
   String _getRequestUrl(String endpoint) {
-    // Always log for debugging (even in production)
-    print('🌐 Platform check - kIsWeb: $kIsWeb');
+    if (kDebugMode) {
+      print('🌐 Platform check - kIsWeb: $kIsWeb');
+    }
     
-    // Force proxy for production web deployment (GitHub Pages)
-    final needsProxy = true; // Force proxy for now to ensure CORS works
+    // Call backend directly - no proxy needed
+    final needsProxy = false; // Backend has CORS configured correctly
     
     if (needsProxy) {
       final targetUrl = Uri.encodeComponent('$baseUrl$endpoint');
       final proxiedUrl = 'https://api.allorigins.win/raw?url=$targetUrl';
-      print('🔄 FORCED PROXY: $proxiedUrl');
+      if (kDebugMode) {
+        print('🔄 PROXIED URL: $proxiedUrl');
+      }
       return proxiedUrl;
     } else {
       final directUrl = '$baseUrl$endpoint';
-      print('🎯 DIRECT URL: $directUrl');
+      if (kDebugMode) {
+        print('🎯 DIRECT URL: $directUrl');
+      }
       return directUrl;
     }
   }
