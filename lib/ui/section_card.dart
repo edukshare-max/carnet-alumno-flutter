@@ -234,11 +234,30 @@ class CitaCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String motivo = citaData['motivo']?.toString() ?? 'Sin motivo especificado';
-    final String fecha = citaData['fecha']?.toString() ?? 'N/A';
-    final String horaInicio = citaData['hora_inicio']?.toString() ?? '';
+    // Debug: mostrar todos los campos disponibles
+    print('DEBUG CitaCard: campos disponibles: ${citaData.keys.toList()}');
+    print('DEBUG CitaCard: datos completos: $citaData');
+    
+    // Manejo flexible de campos con múltiples nombres posibles
+    final String motivo = citaData['motivo']?.toString() ?? 
+                         citaData['tipo']?.toString() ?? 
+                         citaData['descripcion']?.toString() ?? 
+                         'Sin motivo especificado';
+                         
+    final String fecha = citaData['fecha']?.toString() ?? 
+                        citaData['inicio']?.toString()?.split('T')[0] ?? // Para formato ISO
+                        'N/A';
+                        
+    final String horaInicio = citaData['hora_inicio']?.toString() ?? 
+                             citaData['hora']?.toString() ?? 
+                             citaData['inicio']?.toString()?.split('T')[1]?.split('.')[0] ?? // Para formato ISO
+                             '';
+                             
     final String horaFin = citaData['hora_fin']?.toString() ?? '';
-    final String estado = citaData['estado']?.toString() ?? 'Pendiente';
+    
+    final String estado = citaData['estado']?.toString() ?? 
+                         citaData['status']?.toString() ?? 
+                         'Pendiente';
     
     String horario = '';
     if (horaInicio.isNotEmpty && horaFin.isNotEmpty) {
@@ -251,6 +270,7 @@ class CitaCard extends StatelessWidget {
     switch (estado.toLowerCase()) {
       case 'confirmada':
       case 'activa':
+      case 'programada':
         estadoColor = UAgro.success;
         break;
       case 'cancelada':
@@ -332,6 +352,50 @@ class CitaCard extends StatelessWidget {
               ],
             ],
           ),
+          // Mostrar ubicación si está disponible
+          if (citaData['ubicacion']?.toString().isNotEmpty == true) ...[
+            const SizedBox(height: UAgro.spacingSmall),
+            Row(
+              children: [
+                Icon(
+                  Icons.location_on,
+                  size: 16,
+                  color: UAgro.textSecondary,
+                ),
+                const SizedBox(width: UAgro.spacingSmall),
+                Expanded(
+                  child: Text(
+                    citaData['ubicacion'].toString(),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: UAgro.textSecondary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+          // Mostrar responsable si está disponible
+          if (citaData['responsable']?.toString().isNotEmpty == true) ...[
+            const SizedBox(height: UAgro.spacingSmall),
+            Row(
+              children: [
+                Icon(
+                  Icons.person,
+                  size: 16,
+                  color: UAgro.textSecondary,
+                ),
+                const SizedBox(width: UAgro.spacingSmall),
+                Expanded(
+                  child: Text(
+                    citaData['responsable'].toString(),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: UAgro.textSecondary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
