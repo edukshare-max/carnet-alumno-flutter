@@ -105,6 +105,24 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// Handle carnet search
   Future<void> _searchCarnet() async {
+    // Validar el formulario antes de proceder
+    if (!_formKey.currentState!.validate()) {
+      return; // No continuar si la validación falla
+    }
+
+    // Verificar que el campo no esté vacío
+    final matriculaIngresada = _matriculaController.text.trim();
+    if (matriculaIngresada.isEmpty) {
+      ui_feedback.Feedback.showErr(context, 'Ingresa una matrícula para buscar');
+      return;
+    }
+
+    // Verificar que coincida con la matrícula del usuario autenticado
+    if (matriculaIngresada != _userMatricula) {
+      ui_feedback.Feedback.showErr(context, 'Solo puedes consultar tu propia matrícula');
+      return;
+    }
+
     setState(() => _isLoading = true);
 
     try {
@@ -353,7 +371,7 @@ class _HomeScreenState extends State<HomeScreen> {
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 labelText: 'Matrícula',
-                hintText: 'Ingresa tu matrícula',
+                hintText: 'Ingresa tu matrícula ($_userMatricula)',
                 prefixIcon: Icon(Icons.badge_outlined, color: UAgro.primaryBlue),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
