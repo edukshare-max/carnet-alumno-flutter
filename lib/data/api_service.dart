@@ -242,6 +242,8 @@ class ApiService {
   Future<Map<String, dynamic>?> getMyCarnet(String token) async {
     try {
       final url = _getRequestUrl('/me/carnet');
+      print('🔍 GET MY CARNET - URL: $url');
+      
       final response = await http.get(
         Uri.parse(url),
         headers: {
@@ -251,12 +253,17 @@ class ApiService {
         },
       ).timeout(timeoutDuration);
 
+      print('🔍 GET MY CARNET - STATUS: ${response.statusCode}');
+      print('🔍 GET MY CARNET - BODY: ${response.body}');
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (data is Map<String, dynamic>) {
+          print('✅ GET MY CARNET - SUCCESS: $data');
           return data;
         }
       } else if (response.statusCode == 401) {
+        print('❌ GET MY CARNET - 401 UNAUTHORIZED');
         // Session expired - clear token and return null
         await _handleSessionExpired();
         return null;

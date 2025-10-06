@@ -83,13 +83,22 @@ class _HomeScreenState extends State<HomeScreen> {
   /// Load carnet data using token
   Future<void> _loadCarnetData(String token) async {
     try {
+      print('🔍 LOADING CARNET DATA - Starting with token: ${token.substring(0, 20)}...');
       final carnetData = await _apiService.getMyCarnet(token);
+      print('🔍 CARNET DATA RESPONSE: $carnetData');
+      
       if (carnetData != null && mounted) {
+        print('✅ CARNET DATA VALID - Setting state');
         setState(() {
           _carnetData = carnetData;
         });
+        print('✅ CARNET DATA STATE SET');
+      } else {
+        print('❌ CARNET DATA INVALID - carnetData: $carnetData, mounted: $mounted');
       }
     } catch (e) {
+      print('💥 ERROR LOADING CARNET DATA: $e');
+      print('💥 ERROR STACK: ${StackTrace.current}');
       print('Error loading carnet data: $e');
     }
   }
