@@ -179,7 +179,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    try {
+      print('🔍 BUILD - Starting HomeScreen build');
+      print('🔍 BUILD - _carnetData: ${_carnetData != null ? 'HAS_DATA' : 'NULL'}');
+      print('🔍 BUILD - _userMatricula: $_userMatricula');
+      print('🔍 BUILD - _userEmail: $_userEmail');
+      
+      return Scaffold(
       backgroundColor: UAgro.backgroundLight,
       appBar: AppBar(
         title: Text(
@@ -230,6 +236,33 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+    } catch (e, stackTrace) {
+      print('💥 BUILD ERROR: $e');
+      print('💥 BUILD STACK: $stackTrace');
+      
+      // Return a simple error widget instead of crashing
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('UAGro Carnet - Error'),
+          backgroundColor: Colors.white,
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error, size: 64, color: Colors.red),
+              const SizedBox(height: 16),
+              const Text('Error cargando la aplicación'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _logout,
+                child: const Text('Reiniciar'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
   }
 
   /// Refresh carnet and citas data
@@ -387,9 +420,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildCarnetDisplay() {
+    // Safe null checks before creating CarnetView
+    final carnetData = _carnetData;
+    final matricula = _userMatricula;
+    
+    if (carnetData == null || matricula == null) {
+      print('⚠️ BUILD CARNET DISPLAY - Missing data: carnetData=$carnetData, matricula=$matricula');
+      return const SizedBox.shrink(); // Return empty widget instead of crashing
+    }
+    
+    print('✅ BUILD CARNET DISPLAY - Creating CarnetView');
     return CarnetView(
-      carnetData: _carnetData!,
-      matricula: _userMatricula!,
+      carnetData: carnetData,
+      matricula: matricula,
     );
   }
 }
