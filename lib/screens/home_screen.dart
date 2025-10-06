@@ -44,8 +44,15 @@ class _HomeScreenState extends State<HomeScreen> {
   /// Load current user session data
   Future<void> _loadUserData() async {
     try {
+      print('🔍 LOADING USER DATA - Starting...');
       final sessionData = await Session.getSessionData();
+      print('🔍 SESSION DATA: $sessionData');
+      print('🔍 TOKEN: ${sessionData?.token}');
+      print('🔍 EMAIL: ${sessionData?.email}');
+      print('🔍 MATRICULA: ${sessionData?.matricula}');
+      
       if (sessionData != null && sessionData.token != null && mounted) {
+        print('✅ SESSION VALID - Setting up user data');
         setState(() {
           _userMatricula = sessionData.matricula;
           _userEmail = sessionData.email;
@@ -60,10 +67,15 @@ class _HomeScreenState extends State<HomeScreen> {
         // Load carnet data automatically
         _loadCarnetData(sessionData.token!);
       } else {
+        print('❌ SESSION INVALID - Logging out');
+        print('❌ sessionData: $sessionData');
+        print('❌ sessionData?.token: ${sessionData?.token}');
+        print('❌ mounted: $mounted');
         // No session or token, go back to login
         _logout();
       }
     } catch (e) {
+      print('💥 ERROR LOADING USER DATA: $e');
       ui_feedback.Feedback.showErr(context, 'Error cargando datos de usuario: ${e.toString()}');
     }
   }
