@@ -19,9 +19,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final _matriculaController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
-  
   bool _isLoading = false;
   String? _userMatricula;
   String? _userEmail;
@@ -37,7 +34,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
-    _matriculaController.dispose();
     super.dispose();
   }
 
@@ -60,9 +56,6 @@ class _HomeScreenState extends State<HomeScreen> {
         
         // Set the auth token for API calls
         _apiService.setAuthToken(sessionData.token);
-        
-        // Pre-fill matricula field with user's own matricula
-        _matriculaController.text = sessionData.matricula;
         
         // Load carnet data automatically
         _loadCarnetData(sessionData.token!);
@@ -100,61 +93,6 @@ class _HomeScreenState extends State<HomeScreen> {
       print('💥 ERROR LOADING CARNET DATA: $e');
       print('💥 ERROR STACK: ${StackTrace.current}');
       print('Error loading carnet data: $e');
-    }
-  }
-
-  /// Handle carnet search
-  Future<void> _searchCarnet() async {
-    // Validar el formulario antes de proceder
-    if (!_formKey.currentState!.validate()) {
-      return; // No continuar si la validación falla
-    }
-
-    // Verificar que el campo no esté vacío
-    final matriculaIngresada = _matriculaController.text.trim();
-    if (matriculaIngresada.isEmpty) {
-      ui_feedback.Feedback.showErr(context, 'Ingresa una matrícula para buscar');
-      return;
-    }
-
-    // Verificar que coincida con la matrícula del usuario autenticado
-    if (matriculaIngresada != _userMatricula) {
-      ui_feedback.Feedback.showErr(context, 'Solo puedes consultar tu propia matrícula');
-      return;
-    }
-
-    setState(() => _isLoading = true);
-
-    try {
-      final token = await Session.getToken();
-      if (token == null) {
-        _logout();
-        return;
-      }
-
-      final carnetData = await _apiService.getMyCarnet(token);
-      
-      if (carnetData != null && mounted) {
-        setState(() {
-          _carnetData = carnetData;
-        });
-        ui_feedback.Feedback.showOk(context, 'Carnet encontrado');
-      } else {
-        ui_feedback.Feedback.showErr(context, 'No se encontró el carnet');
-      }
-    } catch (e) {
-      if (mounted) {
-        ui_feedback.Feedback.showErr(context, e.toString());
-        
-        // If authentication error, logout
-        if (e.toString().contains('expirada') || e.toString().contains('autenticado')) {
-          _logout();
-        }
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
     }
   }
 
@@ -308,11 +246,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 
                 const SizedBox(height: 24),
                 
-                // Search Carnet Section
-                _buildSearchSection(),
-                
-                const SizedBox(height: 24),
-                
                 // Action Buttons
                 _buildActionButtons(),
                 
@@ -355,61 +288,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ],
-      ),
-    );
-  }
-
-  Widget _buildSearchSection() {
-    return SectionCard(
-      title: 'Buscar Carnet',
-      child: Form(
-        key: _formKey,
-        child: Column(
-          children: [
-            TextFormField(
-              controller: _matriculaController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: 'Matrícula',
-                hintText: 'Ingresa tu matrícula ($_userMatricula)',
-                prefixIcon: Icon(Icons.badge_outlined, color: UAgro.primaryBlue),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: UAgro.primaryBlue, width: 2),
-                ),
-              ),
-              validator: (value) {
-                if (value?.trim().isEmpty ?? true) {
-                  return 'La matrícula es requerida';
-                }
-                if (value!.trim() != _userMatricula) {
-                  return 'Solo puedes consultar tu propia matrícula';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: _isLoading ? null : _searchCarnet,
-                icon: const Icon(Icons.search),
-                label: const Text('Buscar'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: UAgro.primaryBlue,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
