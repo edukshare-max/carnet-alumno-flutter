@@ -430,9 +430,44 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     
     print('✅ BUILD CARNET DISPLAY - Creating CarnetView');
-    return CarnetView(
-      carnetData: carnetData,
-      matricula: matricula,
+    
+    // TEMPORARY: Simple widget instead of CarnetView to test
+    return Card(
+      margin: const EdgeInsets.all(16),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'CARNET TEMPORAL - DATOS CARGADOS EXITOSAMENTE',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: UAgro.primaryBlue,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text('Nombre: ${carnetData['nombreCompleto'] ?? 'N/A'}'),
+            Text('Matrícula: ${carnetData['matricula'] ?? 'N/A'}'),
+            Text('Programa: ${carnetData['programa'] ?? 'N/A'}'),
+            Text('Email: ${carnetData['correo'] ?? 'N/A'}'),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                print('🔍 DATOS COMPLETOS: $carnetData');
+              },
+              child: const Text('Ver Datos Completos en Console'),
+            ),
+          ],
+        ),
+      ),
     );
+    
+    // Original code commented out for testing:
+    // return CarnetView(
+    //   carnetData: carnetData,
+    //   matricula: matricula,
+    // );
   }
 }
