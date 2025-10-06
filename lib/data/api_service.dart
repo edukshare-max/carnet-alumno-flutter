@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'session.dart';
@@ -22,29 +23,17 @@ class ApiService {
     }
   }
 
-  /// Get URL with CORS handling for web deployment
+  /// Get URL for API requests - always direct to backend
   String _getRequestUrl(String endpoint) {
+    // Clean base URL and construct direct endpoint
+    final base = baseUrl.replaceAll(RegExp(r'/$'), '');
+    final directUrl = '$base$endpoint';
+    
     if (kDebugMode) {
-      print('🌐 Platform check - kIsWeb: $kIsWeb');
+      print('🎯 DIRECT URL: $directUrl');
     }
     
-    // Call backend directly - no proxy needed
-    final needsProxy = false; // Backend has CORS configured correctly
-    
-    if (needsProxy) {
-      final targetUrl = Uri.encodeComponent('$baseUrl$endpoint');
-      final proxiedUrl = 'https://api.allorigins.win/raw?url=$targetUrl';
-      if (kDebugMode) {
-        print('🔄 PROXIED URL: $proxiedUrl');
-      }
-      return proxiedUrl;
-    } else {
-      final directUrl = '$baseUrl$endpoint';
-      if (kDebugMode) {
-        print('🎯 DIRECT URL: $directUrl');
-      }
-      return directUrl;
-    }
+    return directUrl;
   }
 
   /// Get base URL (reads from STUDENT_API_BASE_URL environment or uses default)
@@ -102,73 +91,86 @@ class ApiService {
       print('📡 RESPONSE STATUS: ${response.statusCode}');
       print('📡 RESPONSE BODY RAW: ${response.body}');
 
-      if (response.statusCode == 200) {
-        print('✅ STATUS 200 - Attempting JSON decode...');
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        // Check if response is actually JSON before parsing
+        final contentType = response.headers['content-type'] ?? '';
+        final bodyTrimmed = response.body.trim();
+        
+        if (!contentType.contains('application/json') || bodyTrimmed.startsWith('<')) {
+          print('❌ NON-JSON RESPONSE: Content-Type: $contentType, Body starts with: ${bodyTrimmed.substring(0, min(50, bodyTrimmed.length))}');
+          throw Exception('Backend returned non-JSON response (possibly HTML error page)');
+        }
+        
+        print('✅ STATUS ${response.statusCode} - Attempting JSON decode...');
         
         final data = json.decode(response.body);
         
-        // Always log JSON decode results (even in production)
-        print('✅ JSON DECODED: $data');
-        print('✅ DATA TYPE: ${data.runtimeType}');
+        if (kDebugMode) {
+          print('✅ JSON DECODED: $data');
+          print('✅ DATA TYPE: ${data.runtimeType}');
+        }
         
-        // Defensive token extraction - handle multiple response formats
-        String? token;
+        // Hardened token extraction - handle multiple response formats
+        String token = '';
         if (data is Map<String, dynamic>) {
-          // Always log token extraction (even in production)
-          print('✅ DATA IS MAP - Extracting token...');
+          if (kDebugMode) {
+            print('✅ DATA IS MAP - Extracting token...');
+          }
           
-          // Try each possible token field with null safety
-          final rawToken = data['access_token'] ?? 
-                          data['accessToken'] ?? 
+          // Tolerant token extraction
+          final rawToken = data['accessToken'] ?? 
+                          data['access_token'] ?? 
                           data['token'] ?? 
-                          data['jwt'];
+                          data['jwt'] ?? 
+                          data['id_token'] ?? 
+                          '';
           
-          // Always log token results (even in production) 
-          print('🔑 RAW TOKEN: ${rawToken?.runtimeType} - ${rawToken != null ? '[EXISTS]' : '[NULL]'}');
+          token = rawToken.toString().trim();
           
-          // Convert to string only if not null and handle whitespace
-          token = rawToken?.toString().trim();
-          
-          // Always log final token (even in production)
-          print('🔑 FINAL TOKEN: ${token != null ? '[LENGTH:${token!.length}]' : '[NULL]'}');
+          if (kDebugMode) {
+            print('🔑 EXTRACTED TOKEN: ${token.isNotEmpty ? '[LENGTH:${token.length}]' : '[EMPTY]'}');
+          }
         } else {
           if (kDebugMode) {
             print('❌ DATA NOT MAP - Type: ${data.runtimeType}');
           }
         }
         
-        if (token?.isNotEmpty == true) {
-          if (kDebugMode) {
-            print('🎉 TOKEN VALID - Storing and returning...');
-          }
+        if (token.isNotEmpty) {
           // Store the token for future requests
-          _authToken = token!;
+          _authToken = token;
           final result = {'token': token};
-          // Always log success (even in production)
-          print('🎉 RETURNING RESULT: $result');
+          if (kDebugMode) {
+            print('🎉 RETURNING RESULT: $result');
+          }
           return result;
         } else {
-          // Always log token failure (even in production)
-          print('❌ TOKEN EMPTY OR NULL - Failing login');
+          if (kDebugMode) {
+            print('❌ TOKEN EMPTY - Failing login');
+          }
         }
       } else if (response.statusCode == 401) {
-        // Always log 401 errors (even in production)
-        print('❌ STATUS 401 - Invalid credentials from server');
+        if (kDebugMode) {
+          print('❌ STATUS 401 - Invalid credentials from server');
+        }
         return null;
       } else {
-        // Always log other status errors (even in production)
-        print('❌ STATUS ${response.statusCode} - Server error');
+        if (kDebugMode) {
+          print('❌ STATUS ${response.statusCode} - Server error');
+        }
         return null;
       }
     } catch (e, stackTrace) {
-      // Always log exceptions (even in production)
-      print('💥 EXCEPTION CAUGHT: $e');
-      print('💥 STACK TRACE: $stackTrace');
+      if (kDebugMode) {
+        print('💥 EXCEPTION CAUGHT: $e');
+        print('💥 STACK TRACE: $stackTrace');
+      }
       return null;
     }
     
-    // Always log fallthrough (even in production)
-    print('❌ REACHED END - Returning null');
+    if (kDebugMode) {
+      print('❌ REACHED END - Returning null');
+    }
     return null;
   }
 
