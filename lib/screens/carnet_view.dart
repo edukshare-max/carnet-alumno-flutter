@@ -74,10 +74,11 @@ class CarnetView extends StatelessWidget {
   Widget _buildPersonalInfoCard() {
     final items = <InfoItem>[];
 
-    if (carnetData['nombre'] != null) {
+    if (carnetData['nombreCompleto'] != null || carnetData['nombre'] != null) {
       items.add(InfoItem(
         label: 'Nombre Completo',
-        value: carnetData['nombre'].toString(),
+        value: carnetData['nombreCompleto']?.toString() ?? 
+               carnetData['nombre']?.toString() ?? 'N/A',
       ));
     }
 

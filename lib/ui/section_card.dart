@@ -171,7 +171,8 @@ class CarnetCard extends StatelessWidget {
     final items = [
       InfoItem(
         label: 'Nombre',
-        value: carnetData['nombre']?.toString() ?? 'N/A',
+        value: carnetData['nombreCompleto']?.toString() ?? 
+               carnetData['nombre']?.toString() ?? 'N/A',
       ),
       InfoItem(
         label: 'Matrícula',
@@ -179,8 +180,8 @@ class CarnetCard extends StatelessWidget {
       ),
       InfoItem(
         label: 'Carrera/Programa',
-        value: carnetData['carrera']?.toString() ?? 
-               carnetData['programa']?.toString() ?? 'N/A',
+        value: carnetData['programa']?.toString() ?? 
+               carnetData['carrera']?.toString() ?? 'N/A',
       ),
       InfoItem(
         label: 'Correo',
