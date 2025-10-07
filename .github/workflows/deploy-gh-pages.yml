@@ -27,17 +27,10 @@ jobs:
         flutter build web \
           --release \
           --base-href '/' \
-          --web-renderer html \
-          --dart-define=FLUTTER_WEB_USE_SKIA=false \
-          --dart-define=FLUTTER_WEB_CANVASKIT_URL=none \
-          --dart-define=FLUTTER_WEB_AUTO_DETECT=false \
-          --dart-define=BROWSER_IMAGE_DECODING_ENABLED=false \
-          --dart-define=FLUTTER_WEB_DEBUG_SHOW_SEMANTICS=false \
-          --dart-define=FLUTTER_WEB_DEBUG_SHOW_PERFORMANCE_OVERLAY=false \
-          --dart-define=DART2JS_OPTIMIZATION=O4 \
+          --csp \
+          --optimization-level=4 \
           --dart-define=API_BASE_URL=https://alumno-backend-node.onrender.com \
-          --no-tree-shake-icons \
-          --csp
+          --no-tree-shake-icons
     - uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
