@@ -1,11 +1,11 @@
 {
-    "name": "carnet_alumno",
-    "short_name": "carnet_alumno",
-    "start_url": ".",
+    "name": "Carnet Digital UAGro",
+    "short_name": "Carnet Digital",
+    "start_url": "/",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Carnet Digital UAGro",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
