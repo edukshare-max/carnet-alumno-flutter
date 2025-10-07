@@ -43,12 +43,34 @@
     };
     
     // Backend connectivity test with real data
-    console.log('🔍 Testing backend connectivity with real data...');
+    console.log('🎉 BACKEND IS LIVE! Testing endpoints...');
     
-    // Test both endpoints
+    // Test health check first
+    fetch('https://alumno-backend-node.onrender.com/_health', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    }).then(response => {
+      console.log('🏥 Health check status:', response.status);
+      if (response.ok) {
+        return response.json();
+      }
+    }).then(data => {
+      if (data) {
+        console.log('✅ Backend health:', data);
+      }
+    }).catch(error => {
+      console.log('❌ Health check error:', error);
+    });
+    
+    // Test all possible carnet endpoints
     const testEndpoints = [
       'https://alumno-backend-node.onrender.com/carnet/carnet:15662',
       'https://alumno-backend-node.onrender.com/carnet/15662',
+      'https://alumno-backend-node.onrender.com/api/carnet/15662',
+      'https://alumno-backend-node.onrender.com/api/carnet/carnet:15662',
       'https://alumno-backend-node.onrender.com/citas/por-matricula/15662'
     ];
     
@@ -62,23 +84,24 @@
           'Origin': 'https://app.carnetdigital.space'
         }
       }).then(response => {
-        console.log(`✅ Endpoint ${index + 1} response status:`, response.status);
-        console.log(`✅ Response headers:`, [...response.headers.entries()]);
+        console.log(`📊 Endpoint ${index + 1} status:`, response.status);
+        console.log(`📋 Headers:`, [...response.headers.entries()]);
         if (response.ok) {
           return response.json();
+        } else if (response.status === 404) {
+          console.log(`❌ Endpoint ${index + 1}: 404 Not Found - endpoint doesn't exist`);
         } else {
           console.log(`❌ Endpoint ${index + 1} error:`, response.status, response.statusText);
           return response.text().then(text => {
-            console.log(`❌ Error response body:`, text);
+            console.log(`❌ Error body:`, text);
           });
         }
       }).then(data => {
         if (data) {
-          console.log(`✅ Endpoint ${index + 1} data received:`, data);
+          console.log(`✅ Endpoint ${index + 1} SUCCESS! Data:`, data);
         }
       }).catch(error => {
-        console.log(`❌ Endpoint ${index + 1} connection error:`, error);
-        console.log(`❌ Error details:`, error.message);
+        console.log(`❌ Endpoint ${index + 1} network error:`, error.message);
       });
     });
     
