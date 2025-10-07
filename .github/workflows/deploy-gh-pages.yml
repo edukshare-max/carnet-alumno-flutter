@@ -15,7 +15,29 @@ jobs:
         flutter-version: '3.13.9'
         channel: 'stable'
     - run: flutter pub get
-    - run: flutter build web --release --base-href '/' --web-renderer html --dart-define=BROWSER_IMAGE_DECODING_ENABLED=false --dart-define=FLUTTER_WEB_USE_SKIA=false --dart-define=FLUTTER_WEB_CANVASKIT_URL=none --dart-define=FLUTTER_WEB_AUTO_DETECT=false --dart-define=API_BASE_URL=https://alumno-backend-node.onrender.com
+    - name: Clean Flutter and Build Cache
+      run: |
+        flutter clean
+        rm -rf build/
+        rm -rf .dart_tool/
+        flutter pub get
+    - name: Build web app
+      run: |
+        flutter config --enable-web
+        flutter build web \
+          --release \
+          --base-href '/' \
+          --web-renderer html \
+          --dart-define=FLUTTER_WEB_USE_SKIA=false \
+          --dart-define=FLUTTER_WEB_CANVASKIT_URL=none \
+          --dart-define=FLUTTER_WEB_AUTO_DETECT=false \
+          --dart-define=BROWSER_IMAGE_DECODING_ENABLED=false \
+          --dart-define=FLUTTER_WEB_DEBUG_SHOW_SEMANTICS=false \
+          --dart-define=FLUTTER_WEB_DEBUG_SHOW_PERFORMANCE_OVERLAY=false \
+          --dart-define=DART2JS_OPTIMIZATION=O4 \
+          --dart-define=API_BASE_URL=https://alumno-backend-node.onrender.com \
+          --no-tree-shake-icons \
+          --csp
     - uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
