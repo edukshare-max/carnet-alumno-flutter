@@ -23,6 +23,12 @@
   <script>
     // Configuración inicial de Flutter Web
     window.flutterWebRenderer = "html";
+    window.addEventListener('flutter-first-frame', function() {
+      var loadingElement = document.querySelector('#loading');
+      if (loadingElement) {
+        loadingElement.remove();
+      }
+    });
     var serviceWorkerVersion = null;
   </script>
 </head>
