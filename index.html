@@ -42,27 +42,44 @@
       useColorEmoji: false
     };
     
-    // Backend connectivity test
-    console.log('🔍 Testing backend connectivity...');
-    fetch('https://alumno-backend-node.onrender.com/carnet/20160001', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }
-    }).then(response => {
-      console.log('✅ Backend response status:', response.status);
-      if (response.ok) {
-        return response.json();
-      } else {
-        console.log('❌ Backend error:', response.status, response.statusText);
-      }
-    }).then(data => {
-      if (data) {
-        console.log('✅ Backend data received:', data);
-      }
-    }).catch(error => {
-      console.log('❌ Backend connection error:', error);
+    // Backend connectivity test with real data
+    console.log('🔍 Testing backend connectivity with real data...');
+    
+    // Test both endpoints
+    const testEndpoints = [
+      'https://alumno-backend-node.onrender.com/carnet/carnet:15662',
+      'https://alumno-backend-node.onrender.com/carnet/15662',
+      'https://alumno-backend-node.onrender.com/citas/por-matricula/15662'
+    ];
+    
+    testEndpoints.forEach((url, index) => {
+      console.log(`🔍 Testing endpoint ${index + 1}: ${url}`);
+      fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Origin': 'https://app.carnetdigital.space'
+        }
+      }).then(response => {
+        console.log(`✅ Endpoint ${index + 1} response status:`, response.status);
+        console.log(`✅ Response headers:`, [...response.headers.entries()]);
+        if (response.ok) {
+          return response.json();
+        } else {
+          console.log(`❌ Endpoint ${index + 1} error:`, response.status, response.statusText);
+          return response.text().then(text => {
+            console.log(`❌ Error response body:`, text);
+          });
+        }
+      }).then(data => {
+        if (data) {
+          console.log(`✅ Endpoint ${index + 1} data received:`, data);
+        }
+      }).catch(error => {
+        console.log(`❌ Endpoint ${index + 1} connection error:`, error);
+        console.log(`❌ Error details:`, error.message);
+      });
     });
     
     // Clear all storage
