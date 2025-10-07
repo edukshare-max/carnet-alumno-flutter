@@ -30,4 +30,5 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./build/web
         force_orphan: true
+        full_commit_message: 'Deploy Flutter Web App - Clean deployment'
         cname: app.carnetdigital.space
