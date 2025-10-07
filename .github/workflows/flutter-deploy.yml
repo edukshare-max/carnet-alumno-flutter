@@ -3,9 +3,9 @@ name: Flutter Web Deploy to GitHub Pages
 # Trigger del workflow
 on:
   push:
-    branches: [ main ]  # Cuando se haga push a main
+    branches: [ master ]  # Cuando se haga push a master
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
   workflow_dispatch:  # Permite ejecutar manualmente
 
 # Permisos necesarios para GitHub Pages
