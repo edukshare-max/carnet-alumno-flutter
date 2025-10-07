@@ -43,7 +43,7 @@ class AppTheme {
     ),
     
     // Card theme
-    cardTheme: const CardThemeData(
+    cardTheme: const CardTheme(
       color: UAGroColors.surface,
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -144,7 +144,7 @@ class AppTheme {
     ),
     
     // Tab bar theme
-    tabBarTheme: const TabBarThemeData(
+    tabBarTheme: const TabBarTheme(
       labelColor: UAGroColors.primary,
       unselectedLabelColor: UAGroColors.textSecondary,
       indicatorColor: UAGroColors.primary,
