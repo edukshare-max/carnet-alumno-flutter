@@ -43,11 +43,11 @@ class AppTheme {
     ),
     
     // Card theme
-    cardTheme: CardTheme(
+    cardTheme: const CardThemeData(
       color: UAGroColors.surface,
       elevation: 2,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(UAGroConstants.radiusMedium),
+        borderRadius: BorderRadius.all(Radius.circular(12)),
       ),
     ),
     
@@ -144,7 +144,7 @@ class AppTheme {
     ),
     
     // Tab bar theme
-    tabBarTheme: TabBarTheme(
+    tabBarTheme: const TabBarThemeData(
       labelColor: UAGroColors.primary,
       unselectedLabelColor: UAGroColors.textSecondary,
       indicatorColor: UAGroColors.primary,
