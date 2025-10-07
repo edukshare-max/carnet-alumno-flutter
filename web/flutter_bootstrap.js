@@ -1,7 +1,7 @@
 {{flutter_js}}
 {{flutter_build_config}}
 
-console.log('🚀 Carnet Digital UAGro v3.0 FINAL - JWT AUTH FIXED - BOOTSTRAP METHOD');
+console.log('🚀 Carnet Digital UAGro v3.0 FINAL - JWT AUTH FIXED - CANVASKIT RENDERER');
 
 // Clear all storage before starting
 if (typeof localStorage !== 'undefined') {
@@ -27,16 +27,16 @@ loading.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: transl
 loading.innerHTML = '<div>🚀 Carnet Digital UAGro v3.0 FINAL</div><div>Loading...</div>';
 document.body.appendChild(loading);
 
-// Official Flutter loader API with custom bootstrap
+// Official Flutter loader API with CANVASKIT renderer (matching buildConfig)
 _flutter.loader.load({
   config: {
-    renderer: 'html'
+    renderer: 'canvaskit'  // MATCH the buildConfig renderer
   },
   onEntrypointLoaded: async function(engineInitializer) {
     if (loading) loading.innerHTML = '<div>🚀 Carnet Digital UAGro v3.0 FINAL</div><div>Initializing engine...</div>';
     
     const appRunner = await engineInitializer.initializeEngine({
-      renderer: 'html'
+      renderer: 'canvaskit'  // CONSISTENT renderer
     });
     
     if (loading) loading.innerHTML = '<div>🚀 Carnet Digital UAGro v3.0 FINAL</div><div>Running app...</div>';
