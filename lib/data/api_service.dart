@@ -8,7 +8,7 @@ class ApiService {
   // Read API base URL from environment variable
   static const String _apiBase = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'https://fastapi-backend-o7ks.onrender.com',
+    defaultValue: 'https://alumno-backend-node.onrender.com',
   );
 
   static const Duration _timeout = Duration(seconds: 30);

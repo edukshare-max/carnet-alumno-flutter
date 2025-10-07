@@ -1,0 +1,44 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+permissions:
+  contents: write
+  pages: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.13.9'
+          channel: 'stable'
+          cache: true
+          cache-key: flutter-3.13.9
+          
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build web app
+        run: |
+          flutter build web \
+            --release \
+            --base-href '/carnet-alumno-flutter/' \
+            --dart-define=API_BASE_URL=https://alumno-backend-node.onrender.com
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/web
+          force_orphan: true
