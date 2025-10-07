@@ -1,48 +1,92 @@
-name: Deploy to GitHub Pagesname: Deploy to GitHub Pages
+name: Deploy to GitHub Pagesname: Deploy to GitHub Pagesname: Deploy to GitHub Pages
 
 
 
-on:on:
+on:
 
-  push:  push:
+  push:
 
-    branches:    branches:
+    branches:on:on:
 
-      - main      - main
+      - main
 
-      - master      - master
-
-
-
-permissions:permissions:
-
-  contents: write  contents: write
-
-  pages: write  pages: write
+      - master  push:  push:
 
 
 
-jobs:jobs:
+permissions:    branches:    branches:
 
-  build-and-deploy:  build-and-deploy:
+  contents: write
 
-    runs-on: ubuntu-latest    runs-on: ubuntu-latest
-
-
-
-    steps:    steps:
-
-      - name: Checkout      - name: Checkout
-
-        uses: actions/checkout@v3        uses: actions/checkout@v3
+  pages: write      - main      - main
 
 
 
-      - name: Setup Flutter      - name: Setup Flutter
+jobs:      - master      - master
 
-        uses: subosito/flutter-action@v2        uses: subosito/flutter-action@v2
+  build-and-deploy:
 
-        with:        with:
+    runs-on: ubuntu-latest
+
+
+
+    steps:permissions:permissions:
+
+      - name: Checkout
+
+        uses: actions/checkout@v3  contents: write  contents: write
+
+
+
+      - name: Setup Flutter  pages: write  pages: write
+
+        uses: subosito/flutter-action@v2
+
+        with:
+
+          flutter-version: '3.13.9'
+
+          channel: 'stable'jobs:jobs:
+
+          cache: true
+
+          cache-key: flutter-3.13.9  build-and-deploy:  build-and-deploy:
+
+          
+
+      - name: Install dependencies    runs-on: ubuntu-latest    runs-on: ubuntu-latest
+
+        run: flutter pub get
+
+
+
+      - name: Build web app
+
+        run: |    steps:    steps:
+
+          flutter build web \
+
+            --release \      - name: Checkout      - name: Checkout
+
+            --base-href '/' \
+
+            --dart-define=API_BASE_URL=https://alumno-backend-node.onrender.com        uses: actions/checkout@v3        uses: actions/checkout@v3
+
+
+
+      - name: Deploy to GitHub Pages
+
+        uses: peaceiris/actions-gh-pages@v3
+
+        with:      - name: Setup Flutter      - name: Setup Flutter
+
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+          publish_dir: ./build/web        uses: subosito/flutter-action@v2        uses: subosito/flutter-action@v2
+
+          force_orphan: true
+
+          cname: app.carnetdigital.space        with:        with:
 
           flutter-version: '3.13.9'          flutter-version: '3.13.9'
 
