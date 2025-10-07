@@ -12,7 +12,7 @@ jobs:
     - uses: actions/checkout@v3
     - uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.13.9'
+        flutter-version: '3.35.4'
         channel: 'stable'
     - run: flutter pub get
     - name: Clean Flutter and Build Cache
@@ -24,13 +24,7 @@ jobs:
     - name: Build web app
       run: |
         flutter config --enable-web
-        flutter build web \
-          --release \
-          --base-href '/' \
-          --csp \
-          --optimization-level=4 \
-          --dart-define=API_BASE_URL=https://alumno-backend-node.onrender.com \
-          --no-tree-shake-icons
+        flutter build web --release --base-href '/' --dart-define=API_BASE_URL=https://alumno-backend-node.onrender.com
     - uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
