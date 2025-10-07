@@ -43,10 +43,9 @@ class _LoginScreenState extends State<LoginScreen> {
       final matricula = await Session.getMatricula();
       
       if (email != null && matricula != null) {
-        // Silent revalidation of carnet
-        final carnet = await ApiService.fetchCarnetByMatricula(matricula);
-        if (carnet != null && 
-            ApiService.validateEmailMatch(email, carnet['correo'] ?? '')) {
+        // Try to re-authenticate with stored credentials
+        final loginSuccess = await ApiService.login(email, matricula);
+        if (loginSuccess) {
           // Session is still valid, navigate to home
           if (mounted) {
             Navigator.of(context).pushReplacement(
@@ -78,25 +77,24 @@ class _LoginScreenState extends State<LoginScreen> {
     UAGroFeedback.showBusyOverlay(context, 'Validando credenciales...');
 
     try {
-      // Fetch carnet with double attempt
-      final carnet = await ApiService.fetchCarnetByMatricula(matricula);
+      // Use the new login flow: login + fetch data
+      final userData = await ApiService.loginAndFetchData(email, matricula);
       
       if (mounted) {
         UAGroFeedback.hideBusyOverlay(context);
       }
 
-      if (carnet == null) {
+      if (userData == null) {
         if (mounted) {
-          UAGroFeedback.showErr(context, 'Matrícula no encontrada en el sistema');
+          UAGroFeedback.showErr(context, 'Credenciales inválidas o error de conexión');
         }
         return;
       }
 
-      // Validate email match
-      final carnetEmail = carnet['correo'] ?? '';
-      if (!ApiService.validateEmailMatch(email, carnetEmail)) {
+      final carnet = userData['carnet'] as Map<String, dynamic>?;
+      if (carnet == null) {
         if (mounted) {
-          UAGroFeedback.showErr(context, 'Correo o matrícula no coinciden');
+          UAGroFeedback.showErr(context, 'No se pudo obtener los datos del carnet');
         }
         return;
       }

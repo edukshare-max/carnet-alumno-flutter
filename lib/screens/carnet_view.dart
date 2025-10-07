@@ -43,23 +43,28 @@ class _CarnetViewState extends State<CarnetView> {
     });
 
     try {
-      final carnet = await ApiService.fetchCarnetByMatricula(widget.matricula);
+      // Re-authenticate to get fresh token
+      final loginSuccess = await ApiService.login(widget.email, widget.matricula);
+      if (!loginSuccess) {
+        if (mounted) {
+          setState(() {
+            _errorMessage = 'Error de autenticación. Por favor, inicia sesión nuevamente.';
+            _isLoading = false;
+          });
+        }
+        return;
+      }
+
+      // Fetch carnet data
+      final carnet = await ApiService.fetchCarnet();
       
       if (!mounted) return;
 
       if (carnet != null) {
-        // Verify email still matches (security check)
-        if (ApiService.validateEmailMatch(widget.email, carnet['correo'] ?? '')) {
-          setState(() {
-            _carnetData = carnet;
-            _isLoading = false;
-          });
-        } else {
-          setState(() {
-            _errorMessage = 'Error de validación. Por favor, inicia sesión nuevamente.';
-            _isLoading = false;
-          });
-        }
+        setState(() {
+          _carnetData = carnet;
+          _isLoading = false;
+        });
       } else {
         setState(() {
           _errorMessage = 'No se pudo cargar la información del carnet.';

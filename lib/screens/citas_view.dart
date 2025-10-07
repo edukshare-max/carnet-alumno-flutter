@@ -9,10 +9,12 @@ import '../data/api_service.dart';
 
 class CitasView extends StatefulWidget {
   final String matricula;
+  final String email;
 
   const CitasView({
     super.key,
     required this.matricula,
+    required this.email,
   });
 
   @override
@@ -45,7 +47,21 @@ class _CitasViewState extends State<CitasView> {
     });
 
     try {
-      final citas = await ApiService.fetchCitas(widget.matricula);
+      // Re-authenticate to get fresh token
+      final loginSuccess = await ApiService.login(widget.email, widget.matricula);
+      if (!loginSuccess) {
+        if (mounted) {
+          setState(() {
+            _errorMessage = 'Error de autenticación. Por favor, inicia sesión nuevamente.';
+            _isLoading = false;
+            _isRefreshing = false;
+          });
+        }
+        return;
+      }
+
+      // Fetch citas data
+      final citas = await ApiService.fetchCitas();
       
       if (!mounted) return;
 

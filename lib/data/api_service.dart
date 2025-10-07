@@ -1,5 +1,5 @@
-// API Service for UAGro student app (READ ONLY)
-// Handles communication with the backend for carnet and citas data
+// API Service for UAGro student app (AUTH-BASED)
+// Uses JWT authentication flow: POST /auth/login -> GET /me/carnet + /me/citas
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -13,78 +13,118 @@ class ApiService {
 
   static const Duration _timeout = Duration(seconds: 30);
 
-  // Headers for all requests
+  // Current JWT token
+  static String? _accessToken;
+
+  // Headers for requests without auth
   static Map<String, String> get _headers => {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       };
 
-  /// Fetch carnet data by matricula with double attempt (ID and fallback)
-  /// Returns carnet data map or null if not found
-  static Future<Map<String, dynamic>?> fetchCarnetByMatricula(String matricula) async {
+  // Headers for authenticated requests
+  static Map<String, String> get _authHeaders => {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $_accessToken',
+      };
+
+  /// Authenticate user with email and matricula
+  /// Returns true if login successful, false otherwise
+  static Future<bool> login(String email, String matricula) async {
     try {
-      // Log the attempt
-      print('Attempting to fetch carnet for matricula: $matricula');
+      print('🔐 Attempting login with email: $email, matricula: $matricula');
 
-      // First attempt: GET /carnet/carnet:{matricula}
-      final firstUrl = '$_apiBase/carnet/carnet:$matricula';
-      print('First attempt URL: $firstUrl');
+      final url = '$_apiBase/auth/login';
+      final body = json.encode({
+        'email': email.trim().toLowerCase(),
+        'matricula': matricula.trim(),
+      });
 
-      try {
-        final firstResponse = await http
-            .get(Uri.parse(firstUrl), headers: _headers)
-            .timeout(_timeout);
+      print('Login URL: $url');
+      print('Login body: $body');
 
-        print('First attempt status: ${firstResponse.statusCode}');
+      final response = await http
+          .post(Uri.parse(url), headers: _headers, body: body)
+          .timeout(_timeout);
 
-        if (firstResponse.statusCode == 200) {
-          final data = json.decode(firstResponse.body);
-          print('First attempt successful');
-          return data as Map<String, dynamic>;
+      print('Login response status: ${response.statusCode}');
+      print('Login response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['access_token'] != null) {
+          _accessToken = data['access_token'];
+          print('✅ Login successful, token received');
+          return true;
+        } else {
+          print('❌ Login response missing access_token');
+          return false;
         }
-      } catch (e) {
-        print('First attempt failed: $e');
+      } else {
+        print('❌ Login failed: ${response.statusCode} - ${response.body}');
+        return false;
       }
-
-      // Fallback attempt: GET /carnet/{matricula}
-      final fallbackUrl = '$_apiBase/carnet/$matricula';
-      print('Fallback attempt URL: $fallbackUrl');
-
-      try {
-        final fallbackResponse = await http
-            .get(Uri.parse(fallbackUrl), headers: _headers)
-            .timeout(_timeout);
-
-        print('Fallback attempt status: ${fallbackResponse.statusCode}');
-
-        if (fallbackResponse.statusCode == 200) {
-          final data = json.decode(fallbackResponse.body);
-          print('Fallback attempt successful');
-          return data as Map<String, dynamic>;
-        }
-      } catch (e) {
-        print('Fallback attempt failed: $e');
-      }
-
-      print('Both attempts failed for matricula: $matricula');
-      return null;
     } catch (e) {
-      print('Error fetching carnet for matricula $matricula: $e');
+      print('❌ Login error: $e');
+      return false;
+    }
+  }
+
+  /// Fetch carnet data for authenticated user
+  /// Returns carnet data map or null if not found
+  static Future<Map<String, dynamic>?> fetchCarnet() async {
+    if (_accessToken == null) {
+      print('❌ No access token available. Please login first.');
+      return null;
+    }
+
+    try {
+      print('📋 Fetching carnet data...');
+
+      final url = '$_apiBase/me/carnet';
+      print('Carnet URL: $url');
+
+      final response = await http
+          .get(Uri.parse(url), headers: _authHeaders)
+          .timeout(_timeout);
+
+      print('Carnet response status: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print('✅ Carnet data received');
+        return data as Map<String, dynamic>;
+      } else if (response.statusCode == 401) {
+        print('❌ Unauthorized - token may be expired');
+        _accessToken = null; // Clear invalid token
+        return null;
+      } else {
+        print('❌ Error fetching carnet: ${response.statusCode} - ${response.body}');
+        return null;
+      }
+    } catch (e) {
+      print('❌ Error fetching carnet: $e');
       return null;
     }
   }
 
-  /// Fetch citas (appointments) by matricula
+  /// Fetch citas (appointments) for authenticated user
   /// Returns list of citas or empty list if error/not found
-  static Future<List<Map<String, dynamic>>> fetchCitas(String matricula) async {
-    try {
-      print('Fetching citas for matricula: $matricula');
+  static Future<List<Map<String, dynamic>>> fetchCitas() async {
+    if (_accessToken == null) {
+      print('❌ No access token available. Please login first.');
+      return [];
+    }
 
-      final url = '$_apiBase/citas/por-matricula/$matricula';
+    try {
+      print('📅 Fetching citas data...');
+
+      final url = '$_apiBase/me/citas';
       print('Citas URL: $url');
 
       final response = await http
-          .get(Uri.parse(url), headers: _headers)
+          .get(Uri.parse(url), headers: _authHeaders)
           .timeout(_timeout);
 
       print('Citas response status: ${response.statusCode}');
@@ -92,40 +132,69 @@ class ApiService {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (data is List) {
-          print('Found ${data.length} citas');
+          print('✅ Found ${data.length} citas');
           return data.cast<Map<String, dynamic>>();
-        } else if (data is Map && data.containsKey('citas')) {
-          final citasList = data['citas'] as List;
-          print('Found ${citasList.length} citas in wrapper');
-          return citasList.cast<Map<String, dynamic>>();
         } else {
-          print('Unexpected citas response format');
+          print('⚠️ Unexpected citas response format');
           return [];
         }
-      } else if (response.statusCode == 404) {
-        print('No citas found for matricula: $matricula');
+      } else if (response.statusCode == 401) {
+        print('❌ Unauthorized - token may be expired');
+        _accessToken = null; // Clear invalid token
         return [];
       } else {
-        print('Error fetching citas: ${response.statusCode} - ${response.body}');
+        print('❌ Error fetching citas: ${response.statusCode} - ${response.body}');
         return [];
       }
     } catch (e) {
-      print('Error fetching citas for matricula $matricula: $e');
+      print('❌ Error fetching citas: $e');
       return [];
     }
   }
 
-  /// Validate if the provided email matches the carnet email (case-insensitive)
-  static bool validateEmailMatch(String providedEmail, String carnetEmail) {
-    final normalizedProvided = providedEmail.trim().toLowerCase();
-    final normalizedCarnet = carnetEmail.trim().toLowerCase();
-    return normalizedProvided == normalizedCarnet;
+  /// Login and fetch all user data (carnet + citas)
+  /// Combined method for convenience
+  static Future<Map<String, dynamic>?> loginAndFetchData(String email, String matricula) async {
+    try {
+      // Step 1: Login
+      final loginSuccess = await login(email, matricula);
+      if (!loginSuccess) {
+        return null;
+      }
+
+      // Step 2: Fetch carnet data
+      final carnetData = await fetchCarnet();
+      if (carnetData == null) {
+        return null;
+      }
+
+      // Step 3: Fetch citas data
+      final citasData = await fetchCitas();
+
+      // Return combined data
+      return {
+        'carnet': carnetData,
+        'citas': citasData,
+      };
+    } catch (e) {
+      print('❌ Error in loginAndFetchData: $e');
+      return null;
+    }
+  }
+
+  /// Check if user is currently authenticated
+  static bool get isAuthenticated => _accessToken != null;
+
+  /// Logout (clear token)
+  static void logout() {
+    _accessToken = null;
+    print('🔓 User logged out');
   }
 
   /// Check API connectivity
   static Future<bool> checkConnectivity() async {
     try {
-      final url = '$_apiBase/health'; // Assuming there's a health check endpoint
+      final url = '$_apiBase/_health';
       final response = await http
           .get(Uri.parse(url), headers: _headers)
           .timeout(Duration(seconds: 10));

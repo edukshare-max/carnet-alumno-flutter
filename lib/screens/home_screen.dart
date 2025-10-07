@@ -223,6 +223,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           // Citas tab
           CitasView(
             matricula: _matricula ?? '',
+            email: _email ?? '',
           ),
         ],
       ),
