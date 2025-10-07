@@ -55,6 +55,15 @@ jobs:
         flutter build web --release --verbose
         echo "Build completado exitosamente"
     
+    # 6.5. Replace generated index.html with our custom one
+    - name: 🔧 Replace index.html with custom version
+      run: |
+        echo "Replacing generated index.html with custom version..."
+        cp web/index.html build/web/index.html
+        echo "Custom index.html copied successfully"
+        echo "Verifying buildConfig is present:"
+        grep -n "buildConfig" build/web/index.html || echo "buildConfig NOT found!"
+    
     # 7. Lista archivos generados (debug)
     - name: 📋 List build files
       run: |
