@@ -29,43 +29,22 @@
   <meta name="expires" content="0">
 </head>
 <body>
-  <!-- Minimal Flutter initialization -->
+  <!-- Loading indicator -->
+  <div id="loading_indicator" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: Arial, sans-serif; text-align: center;">
+    <div>🚀 Carnet Digital UAGro v3.0 FINAL</div>
+    <div>Loading...</div>
+  </div>
+
+  <!-- Flutter official initialization with template tokens -->
   <script>
-    // Essential Flutter configuration
-    console.log('🚀 Carnet Digital UAGro v3.0 FINAL - JWT AUTH FIXED - 2025-10-07 12:45PM');
+    console.log('🚀 Carnet Digital UAGro v3.0 FINAL - JWT AUTH FIXED - OFFICIAL SYNTAX');
     
-    // Flutter build configuration MUST be set before flutter.js loads
-    window._flutter = window._flutter || {};
-    window._flutter.buildConfig = {
-      builds: [{
-        compileTarget: "dart2js",
-        renderer: "html",
-        mainJsPath: "main.dart.js"
-      }]
-    };
-    
-    // Additional Flutter configuration
-    window.flutterWebRenderer = "html";
-    window.flutterConfiguration = {
-      renderer: 'html',
-      useColorEmoji: false
-    };
-    
-    // Clear all storage
+    // Clear all storage before loading
     if (typeof localStorage !== 'undefined') {
       try { localStorage.clear(); } catch(e) {}
     }
     if (typeof sessionStorage !== 'undefined') {
       try { sessionStorage.clear(); } catch(e) {}
-    }
-    
-    // Unregister service workers
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(function(registrations) {
-        registrations.forEach(function(registration) {
-          registration.unregister();
-        });
-      });
     }
     
     // Clear caches
@@ -77,23 +56,30 @@
       });
     }
   </script>
-  
-  <script src="flutter.js" defer></script>
+
+  <!-- Flutter official template tokens -->
+  {{flutter_js}}
+  {{flutter_build_config}}
   
   <script>
-    window.addEventListener('load', function(ev) {
-      _flutter.loader.load({
-        serviceWorkerSettings: {
-          serviceWorkerVersion: null,
-        },
-        onEntrypointLoaded: function(engineInitializer) {
-          engineInitializer.initializeEngine({
-            renderer: 'html'
-          }).then(function(appRunner) {
-            appRunner.runApp();
+    // Official Flutter loader API
+    _flutter.loader.load({
+      config: {
+        renderer: 'html'
+      },
+      onEntrypointLoaded: function(engineInitializer) {
+        const loading = document.getElementById('loading_indicator');
+        if (loading) loading.textContent = 'Initializing engine...';
+        
+        engineInitializer.initializeEngine({
+          renderer: 'html'
+        }).then(function(appRunner) {
+          if (loading) loading.textContent = 'Running app...';
+          appRunner.runApp().then(function() {
+            if (loading) loading.remove();
           });
-        }
-      });
+        });
+      }
     });
   </script>
 </body>
