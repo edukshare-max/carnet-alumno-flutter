@@ -33,10 +33,10 @@ class AppTheme {
       ),
 
       // Card Theme
-      cardTheme: CardTheme(
+      cardTheme: const CardThemeData(
         color: UAgro.white,
         elevation: UAgro.elevationLow,
-        shape: const RoundedRectangleBorder(
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(UAgro.radiusMedium)),
         ),
         margin: const EdgeInsets.symmetric(

@@ -97,13 +97,11 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-
-  /// Navigate to health promotions view
+  /// Navigate to promociones view
   void _viewPromociones() {
-    Navigator.push(
-      context,
+    Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => PromocionesView(matricula: _userMatricula ?? ''),
+        builder: (context) => const PromocionesView(),
       ),
     );
   }
@@ -115,6 +113,16 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
+  /// Navigate to health promotions view
+  void _viewPromociones() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PromocionesView(matricula: _userMatricula ?? ''),
+      ),
+    );
+  }
+    
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => CitasView(
@@ -315,23 +323,6 @@ class _HomeScreenState extends State<HomeScreen> {
             label: const Text('Ver Citas'),
             style: ElevatedButton.styleFrom(
               backgroundColor: UAgro.secondaryGold,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: _viewPromociones,
-            icon: const Icon(Icons.health_and_safety),
-            label: const Text('Promociones de Salud'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(

@@ -326,33 +326,3 @@ class ApiException implements Exception {
   @override
   String toString() => message;
 }  /// Get active health promotions for current user
-  Future<List<Map<String, dynamic>>> getPromocionesActivas() async {
-    try {
-      final url = _getRequestUrl('/me/promociones');
-      
-      if (kDebugMode) {
-        print(' Getting promociones from: $url');
-      }
-
-      final response = await http.get(
-        Uri.parse(url),
-        headers: _headers,
-      ).timeout(timeoutDuration);
-
-      if (response.statusCode == 200) {
-        final List<dynamic> jsonList = jsonDecode(response.body);
-        return jsonList.cast<Map<String, dynamic>>();
-      } else if (response.statusCode == 401) {
-        await _handleSessionExpired();
-        throw ApiException('Sesión expirada. Por favor inicia sesión nuevamente.');
-      } else {
-        throw ApiException('Error obteniendo promociones: ${response.statusCode}');
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print(' Error getting promociones: $e');
-      }
-      if (e is ApiException) throw e;
-      throw ApiException('Error de conexión al obtener promociones');
-    }
-  }
