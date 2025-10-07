@@ -1,0 +1,89 @@
+name: Flutter Web Deploy to GitHub Pages
+
+# Trigger del workflow
+on:
+  push:
+    branches: [ main ]  # Cuando se haga push a main
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # Permite ejecutar manualmente
+
+# Permisos necesarios para GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Concurrencia: solo un deploy a la vez
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # Job 1: Build de Flutter
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    # 1. Checkout del código
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v4
+    
+    # 2. Setup de Flutter
+    - name: 🛠️ Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.35.4'  # Versión específica
+        channel: 'stable'
+    
+    # 3. Verificar Flutter
+    - name: 🔍 Flutter doctor
+      run: flutter doctor -v
+    
+    # 4. Obtener dependencias
+    - name: 📦 Get dependencies
+      run: flutter pub get
+    
+    # 5. Analizar código (opcional pero recomendado)
+    - name: 🔍 Analyze code
+      run: flutter analyze
+      continue-on-error: true  # No fallar si hay warnings
+    
+    # 6. Build web
+    - name: 🏗️ Build Flutter Web
+      run: |
+        flutter build web --release --verbose
+        echo "Build completado exitosamente"
+    
+    # 7. Lista archivos generados (debug)
+    - name: 📋 List build files
+      run: |
+        echo "Archivos en build/web:"
+        ls -la build/web/
+        echo "Tamaño del build:"
+        du -sh build/web/
+    
+    # 8. Setup Pages
+    - name: 🌐 Setup Pages
+      uses: actions/configure-pages@v4
+    
+    # 9. Upload artifact
+    - name: 📤 Upload Pages artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: build/web
+
+  # Job 2: Deploy a GitHub Pages
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    runs-on: ubuntu-latest
+    needs: build  # Esperar a que termine el build
+    
+    steps:
+    # Deploy a GitHub Pages
+    - name: 🚀 Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
