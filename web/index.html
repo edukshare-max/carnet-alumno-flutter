@@ -21,33 +21,15 @@
   <link rel="manifest" href="manifest.json">
 
   <script>
+    // The value below is injected by flutter build, do not touch.
     var serviceWorkerVersion = null;
-    var scriptLoaded = false;
-    function loadMainDartJs() {
-      if (scriptLoaded) {
-        return;
-      }
-      scriptLoaded = true;
-      var scriptTag = document.createElement('script');
-      scriptTag.src = 'main.dart.js';
-      scriptTag.type = 'application/javascript';
-      document.body.append(scriptTag);
-    }
-
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('flutter_service_worker.js');
-      });
-    }
-    
-    window.addEventListener('load', function(ev) {
-      var loading = document.querySelector('#loading');
-      loadMainDartJs();
-      if (loading) {
-        loading.remove();
-      }
-    });
   </script>
+
+  <!-- This script adds the flutter initialization JS code -->
+  <script>
+    window.flutterWebRenderer = "html";
+  </script>
+  <script src="flutter.js" defer></script>
 </head>
 <body>
   <div id="loading">
@@ -79,14 +61,19 @@
       <p>Cargando Carnet Digital...</p>
     </div>
   </div>
-
-      // Inicializar Flutter Web
+  <script>
+    window.addEventListener('load', function(ev) {
       _flutter.loader.loadEntrypoint({
         serviceWorker: {
           serviceWorkerVersion: serviceWorkerVersion,
         },
-        onEntrypointLoaded: async function(engineInitializer) {
-          let appRunner = await engineInitializer.initializeEngine({
-  <script src="flutter.js" defer></script>
+        onEntrypointLoaded: function(engineInitializer) {
+          engineInitializer.initializeEngine().then(function(appRunner) {
+            appRunner.runApp();
+          });
+        }
+      });
+    });
+  </script>
 </body>
 </html>

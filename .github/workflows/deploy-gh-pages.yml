@@ -31,12 +31,11 @@ jobs:
 
       - name: Build web app
         run: |
-          flutter clean
-          flutter config --enable-web
           flutter build web \
             --release \
             --base-href '/' \
             --web-renderer html \
+            --dart-define=FLUTTER_WEB_USE_SKIA=false \
             --dart-define=API_BASE_URL=https://alumno-backend-node.onrender.com
 
       - name: Deploy to GitHub Pages
