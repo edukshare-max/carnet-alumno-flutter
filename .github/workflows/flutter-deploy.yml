@@ -49,40 +49,13 @@ jobs:
       run: flutter analyze
       continue-on-error: true  # No fallar si hay warnings
     
-    # 6. Build web and replace index.html in one step with VERBOSE verification
-    - name: 🏗️ Build Flutter Web + Replace index.html + VERBOSE DEBUG
+    # 6. Build web (Flutter will automatically process flutter_bootstrap.js)
+    - name: 🏗️ Build Flutter Web
       run: |
-        echo "=== STEP 1: Show our custom web/index.html BEFORE build ==="
-        echo "Title in our web/index.html:"
-        grep -n "title" web/index.html || echo "No title found"
-        echo "BuildConfig in our web/index.html:"
-        grep -n "buildConfig" web/index.html || echo "No buildConfig found"
-        echo "Console message in our web/index.html:"
-        grep -n "console.log" web/index.html || echo "No console.log found"
-        
-        echo "=== STEP 2: Run flutter build web ==="
         flutter build web --release --verbose
         echo "Build completado exitosamente"
-        
-        echo "=== STEP 3: Show generated build/web/index.html AFTER build ==="
-        echo "Generated title:"
-        grep -n "title" build/web/index.html || echo "No title found"
-        echo "Generated buildConfig:"
-        grep -n "buildConfig" build/web/index.html || echo "No buildConfig found"
-        echo "Generated console message:"
-        grep -n "console.log" build/web/index.html || echo "No console.log found"
-        
-        echo "=== STEP 4: Replace with our custom version ==="
-        cp web/index.html build/web/index.html
-        echo "Custom index.html copied successfully"
-        
-        echo "=== STEP 5: Verify replacement worked ==="
-        echo "FINAL title:"
-        grep -n "title" build/web/index.html || echo "No title found"
-        echo "FINAL buildConfig:"
-        grep -n "buildConfig" build/web/index.html || echo "No buildConfig found"
-        echo "FINAL console message:"
-        grep -n "console.log" build/web/index.html || echo "No console.log found"    # 7. Lista archivos generados (debug)
+        echo "Verificando que flutter_bootstrap.js fue procesado:"
+        ls -la build/web/flutter_bootstrap.js || echo "flutter_bootstrap.js not found"    # 7. Lista archivos generados (debug)
     - name: 📋 List build files
       run: |
         echo "Archivos en build/web:"

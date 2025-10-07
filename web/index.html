@@ -22,65 +22,11 @@
   <title>Carnet Digital UAGro - v3.0 FINAL</title>
   <link rel="manifest" href="manifest.json">
   
-  <!-- AGGRESSIVE Cache bust -->
+  <!-- Cache bust -->
   <meta name="build-time" content="2025-10-07-v3-FINAL">
-  <meta name="cache-control" content="no-cache, no-store, must-revalidate">
-  <meta name="pragma" content="no-cache">
-  <meta name="expires" content="0">
 </head>
 <body>
-  <!-- Loading indicator -->
-  <div id="loading_indicator" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: Arial, sans-serif; text-align: center;">
-    <div>🚀 Carnet Digital UAGro v3.0 FINAL</div>
-    <div>Loading...</div>
-  </div>
-
-  <!-- Flutter official initialization with template tokens -->
-  <script>
-    console.log('🚀 Carnet Digital UAGro v3.0 FINAL - JWT AUTH FIXED - OFFICIAL SYNTAX');
-    
-    // Clear all storage before loading
-    if (typeof localStorage !== 'undefined') {
-      try { localStorage.clear(); } catch(e) {}
-    }
-    if (typeof sessionStorage !== 'undefined') {
-      try { sessionStorage.clear(); } catch(e) {}
-    }
-    
-    // Clear caches
-    if ('caches' in window) {
-      caches.keys().then(function(names) {
-        names.forEach(function(name) {
-          caches.delete(name);
-        });
-      });
-    }
-  </script>
-
-  <!-- Flutter official template tokens -->
-  {{flutter_js}}
-  {{flutter_build_config}}
-  
-  <script>
-    // Official Flutter loader API
-    _flutter.loader.load({
-      config: {
-        renderer: 'html'
-      },
-      onEntrypointLoaded: function(engineInitializer) {
-        const loading = document.getElementById('loading_indicator');
-        if (loading) loading.textContent = 'Initializing engine...';
-        
-        engineInitializer.initializeEngine({
-          renderer: 'html'
-        }).then(function(appRunner) {
-          if (loading) loading.textContent = 'Running app...';
-          appRunner.runApp().then(function() {
-            if (loading) loading.remove();
-          });
-        });
-      }
-    });
-  </script>
+  <!-- Flutter uses flutter_bootstrap.js for initialization -->
+  <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
