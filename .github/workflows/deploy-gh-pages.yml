@@ -33,7 +33,7 @@ jobs:
         run: |
           flutter build web \
             --release \
-            --base-href '/carnet-alumno-flutter/' \
+            --base-href '/carnet_alumno/' \
             --dart-define=API_BASE_URL=https://alumno-backend-node.onrender.com
 
       - name: Deploy to GitHub Pages
