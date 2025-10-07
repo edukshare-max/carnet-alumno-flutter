@@ -152,8 +152,8 @@ class UAGroFeedback {
       barrierDismissible: false,
       barrierColor: Colors.black54,
       builder: (BuildContext context) {
-        return PopScope(
-          canPop: false, // Prevent back button
+        return WillPopScope(
+          onWillPop: () async => false, // Prevent back button
           child: Dialog(
             backgroundColor: Colors.transparent,
             elevation: 0,
