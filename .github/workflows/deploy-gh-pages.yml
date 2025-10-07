@@ -31,16 +31,12 @@ jobs:
 
       - name: Build web app
         run: |
+          flutter clean
           flutter config --enable-web
           flutter build web \
             --release \
             --base-href '/' \
             --web-renderer html \
-            --pwa-strategy none \
-            --dart-define=BROWSER_IMAGE_DECODING_ENABLED=false \
-            --dart-define=FLUTTER_WEB_USE_SKIA=false \
-            --dart-define=FLUTTER_WEB_CANVASKIT_URL=none \
-            --dart-define=FLUTTER_WEB_AUTO_DETECT=false \
             --dart-define=API_BASE_URL=https://alumno-backend-node.onrender.com
 
       - name: Deploy to GitHub Pages

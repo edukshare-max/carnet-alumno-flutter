@@ -21,66 +21,64 @@
   <link rel="manifest" href="manifest.json">
 
   <script>
-    // Configuración inicial de Flutter Web
-    window.flutterWebRenderer = "html";
-    window.addEventListener('flutter-first-frame', function() {
-      var loadingElement = document.querySelector('#loading');
-      if (loadingElement) {
-        loadingElement.remove();
+    var serviceWorkerVersion = null;
+    var scriptLoaded = false;
+    function loadMainDartJs() {
+      if (scriptLoaded) {
+        return;
+      }
+      scriptLoaded = true;
+      var scriptTag = document.createElement('script');
+      scriptTag.src = 'main.dart.js';
+      scriptTag.type = 'application/javascript';
+      document.body.append(scriptTag);
+    }
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('flutter_service_worker.js');
+      });
+    }
+    
+    window.addEventListener('load', function(ev) {
+      var loading = document.querySelector('#loading');
+      loadMainDartJs();
+      if (loading) {
+        loading.remove();
       }
     });
-    var serviceWorkerVersion = null;
   </script>
 </head>
 <body>
-  <script>
-    // Manejo de rutas para SPA en GitHub Pages
-    (function(l) {
-      if (l.search[1] === '/' ) {
-        var decoded = l.search.slice(1).split('&').map(function(s) { 
-          return s.replace(/~and~/g, '&')
-        }).join('?');
-        window.history.replaceState(null, null,
-            l.pathname.slice(0, -1) + decoded + l.hash
-        );
+  <div id="loading">
+    <style>
+      body {
+        background-color: #F5F5F5;
+        margin: 0;
+        padding: 0;
       }
-    }(window.location));
-
-    window.addEventListener('load', function() {
-      var loading = document.createElement('div');
-      loading.innerHTML = `
-        <style>
-          body {
-            background-color: #F5F5F5;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-          }
-          .loading {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-family: Arial, sans-serif;
-          }
-          .loading img {
-            width: 150px;
-            height: auto;
-            margin-bottom: 20px;
-          }
-          .loading p {
-            color: #666;
-            font-size: 16px;
-          }
-        </style>
-        <div class="loading">
-          <img src="favicon.png" alt="UAGro">
-          <p>Cargando Carnet Digital...</p>
-        </div>
-      `;
-      document.body.appendChild(loading);
+      #loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        font-family: Arial, sans-serif;
+      }
+      #loading img {
+        width: 150px;
+        height: auto;
+        margin-bottom: 20px;
+      }
+      #loading p {
+        color: #666;
+        font-size: 16px;
+      }
+    </style>
+    <div style="text-align: center;">
+      <img src="favicon.png" alt="UAGro">
+      <p>Cargando Carnet Digital...</p>
+    </div>
+  </div>
 
       // Inicializar Flutter Web
       _flutter.loader.loadEntrypoint({
@@ -89,15 +87,6 @@
         },
         onEntrypointLoaded: async function(engineInitializer) {
           let appRunner = await engineInitializer.initializeEngine({
-            renderer: 'html',
-            hostElement: document.querySelector('#flutter_target')
-          });
-          await appRunner.runApp();
-          document.body.removeChild(loading);
-        }
-      });
-    });
-  </script>
-  <div id="flutter_target"></div>
+  <script src="flutter.js" defer></script>
 </body>
 </html>
