@@ -7,11 +7,11 @@
   <meta name="description" content="Carnet Digital UAGro">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <!-- Cache Control -->
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <!-- Aggressive Cache Control -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="version" content="1.0.0">
+  <meta name="cache-version" content="v2.0">
 
   <!-- iOS meta tags & icons -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -25,46 +25,132 @@
   <title>Carnet Digital UAGro</title>
   <link rel="manifest" href="manifest.json">
 
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #0175C2;
+      overflow: hidden;
+    }
+    #loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div id="loading">
+    <div>Cargando Carnet Digital...</div>
+  </div>
+  
   <script>
-    // Disable Flutter Web Auto Detection and force HTML renderer
+    console.log('=== CARNET DIGITAL DEBUG START ===');
+    console.log('URL:', window.location.href);
+    console.log('User Agent:', navigator.userAgent);
+    
+    // Critical: Force HTML renderer before anything else
     window.flutterWebRenderer = "html";
     
-    // Clear any existing service worker
+    // Clear any existing service workers immediately
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(function(registrations) {
-        for(let registration of registrations) {
+        registrations.forEach(function(registration) {
           registration.unregister();
-        }
+          console.log('Service worker unregistered');
+        });
       });
+      
+      // Clear all caches
+      if ('caches' in window) {
+        caches.keys().then(function(names) {
+          names.forEach(function(name) {
+            caches.delete(name);
+            console.log('Cache deleted:', name);
+          });
+        });
+      }
     }
 
-    // Prevent caching
+    // Flutter configuration
     window.flutterConfiguration = {
+      renderer: 'html',
       canvasKitBaseUrl: "/",
       useColorEmoji: false
     };
+    
+    console.log('Flutter config set:', window.flutterConfiguration);
   </script>
+  
   <script src="flutter.js" defer></script>
-</head>
-<body>
+  
   <script>
-    window.addEventListener('load', function(ev) {
-      // Add version timestamp to main.dart.js
-      var mainScript = 'main.dart.js?v=' + new Date().getTime();
+    window.addEventListener('load', async function(ev) {
+      console.log('Window load event triggered');
       
-      _flutter.loader.loadEntrypoint({
-        serviceWorker: {
-          serviceWorkerVersion: new Date().getTime().toString(),
-        },
-        onEntrypointLoaded: function(engineInitializer) {
-          engineInitializer.initializeEngine({
-            renderer: "html",
-            useColorEmoji: false
-          }).then(function(appRunner) {
-            appRunner.runApp();
-          });
+      try {
+        // Hide loading after a delay to ensure Flutter has time to initialize
+        setTimeout(() => {
+          const loading = document.getElementById('loading');
+          if (loading) loading.classList.add('hidden');
+        }, 2000);
+        
+        if (typeof _flutter === 'undefined') {
+          throw new Error('Flutter loader not available');
         }
-      });
+        
+        console.log('Loading Flutter entrypoint...');
+        
+        await _flutter.loader.loadEntrypoint({
+          serviceWorker: {
+            serviceWorkerVersion: Date.now().toString()
+          },
+          onEntrypointLoaded: async function(engineInitializer) {
+            console.log('Entrypoint loaded, initializing engine...');
+            
+            try {
+              const engine = await engineInitializer.initializeEngine({
+                renderer: 'html',
+                useColorEmoji: false
+              });
+              
+              console.log('Engine initialized, running app...');
+              await engine.runApp();
+              console.log('=== FLUTTER APP STARTED SUCCESSFULLY ===');
+              
+              // Hide loading completely
+              const loading = document.getElementById('loading');
+              if (loading) loading.remove();
+              
+            } catch (engineError) {
+              console.error('Engine initialization failed:', engineError);
+              throw engineError;
+            }
+          }
+        });
+        
+      } catch (error) {
+        console.error('=== FLUTTER INITIALIZATION FAILED ===');
+        console.error('Error:', error);
+        
+        // Show error to user
+        const loading = document.getElementById('loading');
+        if (loading) {
+          loading.innerHTML = `
+            <div>
+              <h3>Error cargando la aplicación</h3>
+              <p>Por favor, recarga la página</p>
+              <p style="font-size: 12px; opacity: 0.7;">${error.message}</p>
+            </div>
+          `;
+        }
+      }
     });
   </script>
 </body>
