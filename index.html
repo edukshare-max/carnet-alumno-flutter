@@ -13,7 +13,7 @@
   <meta http-equiv="Expires" content="0">
 
   <!-- PWA -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="Carnet Digital">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
@@ -25,14 +25,7 @@
 <body>
   <!-- Minimal Flutter initialization -->
   <script>
-    // Essential configuration only
-    window.flutterWebRenderer = "html";
-    window.flutterConfiguration = {
-      renderer: 'html',
-      useColorEmoji: false
-    };
-    
-    // Flutter build configuration
+    // Flutter build configuration MUST be set before flutter.js loads
     window._flutter = window._flutter || {};
     window._flutter.buildConfig = {
       builds: [{
@@ -40,6 +33,13 @@
         renderer: "html",
         mainJsPath: "main.dart.js"
       }]
+    };
+    
+    // Essential configuration only
+    window.flutterWebRenderer = "html";
+    window.flutterConfiguration = {
+      renderer: 'html',
+      useColorEmoji: false
     };
     
     // Backend connectivity test
@@ -96,15 +96,19 @@
   
   <script>
     window.addEventListener('load', function(ev) {
+      console.log('🚀 Flutter starting...');
+      console.log('buildConfig:', window._flutter?.buildConfig);
+      
       _flutter.loader.load({
-        serviceWorkerSettings: {
-          serviceWorkerVersion: null,
-        },
         onEntrypointLoaded: function(engineInitializer) {
+          console.log('✅ Flutter entrypoint loaded');
           engineInitializer.initializeEngine({
             renderer: 'html'
           }).then(function(appRunner) {
+            console.log('🎉 Flutter engine initialized, running app');
             appRunner.runApp();
+          }).catch(function(error) {
+            console.error('❌ Flutter engine error:', error);
           });
         }
       });
