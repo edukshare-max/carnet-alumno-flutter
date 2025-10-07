@@ -1,193 +1,24 @@
-name: Deploy to GitHub Pages---name: Deploy to GitHub Pagesname: Deploy to GitHub Pagesname: Deploy to GitHub Pages
-
+﻿name: Deploy to GitHub Pages
 on:
-
-  push:name: Deploy to GitHub Pages
-
+  push:
     branches: [main, master]
-
-permissions:on:
-
+permissions:
   contents: write
-
-  pages: write  push:
-
+  pages: write
 jobs:
-
-  deploy:    branches:on:
-
+  deploy:
     runs-on: ubuntu-latest
-
-    steps:      - main
-
-    - uses: actions/checkout@v3
-
-    - uses: subosito/flutter-action@v2      - master  push:
-
-      with:
-
-        flutter-version: '3.13.9'permissions:
-
-        channel: 'stable'
-
-    - run: flutter pub get  contents: write    branches:on:on:
-
-    - run: flutter build web --release --base-href '/' --dart-define=API_BASE_URL=https://alumno-backend-node.onrender.com
-
-    - uses: peaceiris/actions-gh-pages@v3  pages: write
-
-      with:
-
-        github_token: ${{ secrets.GITHUB_TOKEN }}jobs:      - main
-
-        publish_dir: ./build/web
-
-        force_orphan: true  build-and-deploy:
-
-        cname: app.carnetdigital.space
-    runs-on: ubuntu-latest      - master  push:  push:
-
     steps:
-
-      - name: Checkout
-
-        uses: actions/checkout@v3
-
-      - name: Setup Flutterpermissions:    branches:    branches:
-
-        uses: subosito/flutter-action@v2
-
-        with:  contents: write
-
-          flutter-version: '3.13.9'
-
-          channel: 'stable'  pages: write      - main      - main
-
-          cache: true
-
-          cache-key: flutter-3.13.9
-
-      - name: Install dependencies
-
-        run: flutter pub getjobs:      - master      - master
-
-      - name: Build web app
-
-        run: |  build-and-deploy:
-
-          flutter build web \
-
-            --release \    runs-on: ubuntu-latest
-
-            --base-href '/' \
-
-            --dart-define=API_BASE_URL=https://alumno-backend-node.onrender.com
-
-      - name: Deploy to GitHub Pages
-
-        uses: peaceiris/actions-gh-pages@v3    steps:permissions:permissions:
-
-        with:
-
-          github_token: ${{ secrets.GITHUB_TOKEN }}      - name: Checkout
-
-          publish_dir: ./build/web
-
-          force_orphan: true        uses: actions/checkout@v3  contents: write  contents: write
-
-          cname: app.carnetdigital.space
-
-
-      - name: Setup Flutter  pages: write  pages: write
-
-        uses: subosito/flutter-action@v2
-
-        with:
-
-          flutter-version: '3.13.9'
-
-          channel: 'stable'jobs:jobs:
-
-          cache: true
-
-          cache-key: flutter-3.13.9  build-and-deploy:  build-and-deploy:
-
-          
-
-      - name: Install dependencies    runs-on: ubuntu-latest    runs-on: ubuntu-latest
-
-        run: flutter pub get
-
-
-
-      - name: Build web app
-
-        run: |    steps:    steps:
-
-          flutter build web \
-
-            --release \      - name: Checkout      - name: Checkout
-
-            --base-href '/' \
-
-            --dart-define=API_BASE_URL=https://alumno-backend-node.onrender.com        uses: actions/checkout@v3        uses: actions/checkout@v3
-
-
-
-      - name: Deploy to GitHub Pages
-
-        uses: peaceiris/actions-gh-pages@v3
-
-        with:      - name: Setup Flutter      - name: Setup Flutter
-
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-
-          publish_dir: ./build/web        uses: subosito/flutter-action@v2        uses: subosito/flutter-action@v2
-
-          force_orphan: true
-
-          cname: app.carnetdigital.space        with:        with:
-
-          flutter-version: '3.13.9'          flutter-version: '3.13.9'
-
-          channel: 'stable'          channel: 'stable'
-
-          cache: true          cache: true
-
-          cache-key: flutter-3.13.9          cache-key: flutter-3.13.9
-
-                    
-
-      - name: Install dependencies      - name: Install dependencies
-
-        run: flutter pub get        run: flutter pub get
-
-
-
-      - name: Build web app      - name: Build web app
-
-        run: |        run: |
-
-          flutter build web \          flutter build web \
-
-            --release \            --release \
-
-            --base-href '/' \            --base-href '/' \
-
-            --dart-define=API_BASE_URL=https://alumno-backend-node.onrender.com            --dart-define=API_BASE_URL=https://alumno-backend-node.onrender.com
-
-
-
-      - name: Deploy to GitHub Pages      - name: Deploy to GitHub Pages
-
-        uses: peaceiris/actions-gh-pages@v3        uses: peaceiris/actions-gh-pages@v3
-
-        with:        with:
-
-          github_token: ${{ secrets.GITHUB_TOKEN }}          github_token: ${{ secrets.GITHUB_TOKEN }}
-
-          publish_dir: ./build/web          publish_dir: ./build/web
-
-          force_orphan: true          force_orphan: true
-
-          cname: app.carnetdigital.space          cname: app.carnetdigital.space
+    - uses: actions/checkout@v3
+    - uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.13.9'
+        channel: 'stable'
+    - run: flutter pub get
+    - run: flutter build web --release --base-href '/' --dart-define=API_BASE_URL=https://alumno-backend-node.onrender.com
+    - uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./build/web
+        force_orphan: true
+        cname: app.carnetdigital.space
