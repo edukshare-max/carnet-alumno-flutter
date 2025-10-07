@@ -8,6 +8,7 @@ import '../data/session.dart';
 import 'login_screen.dart';
 import 'carnet_view.dart';
 import 'citas_view.dart';
+import 'promociones_view.dart';
 
 /// Home screen for the UAGro Carnet App
 /// Provides access to carnet search and appointments view
@@ -96,13 +97,24 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+
+  /// Navigate to health promotions view
+  void _viewPromociones() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PromocionesView(matricula: _userMatricula ?? ''),
+      ),
+    );
+  }
+
   /// Navigate to appointments view
   void _viewCitas() {
     if (_userMatricula == null) {
       ui_feedback.Feedback.showErr(context, 'Error: No hay matrícula de usuario');
       return;
     }
-    
+
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => CitasView(
@@ -303,6 +315,23 @@ class _HomeScreenState extends State<HomeScreen> {
             label: const Text('Ver Citas'),
             style: ElevatedButton.styleFrom(
               backgroundColor: UAgro.secondaryGold,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: _viewPromociones,
+            icon: const Icon(Icons.health_and_safety),
+            label: const Text('Promociones de Salud'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
