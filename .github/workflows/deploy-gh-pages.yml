@@ -1,27 +1,50 @@
----name: Deploy to GitHub Pagesname: Deploy to GitHub Pagesname: Deploy to GitHub Pages
-
-name: Deploy to GitHub Pages
+name: Deploy to GitHub Pages---name: Deploy to GitHub Pagesname: Deploy to GitHub Pagesname: Deploy to GitHub Pages
 
 on:
 
-  push:
+  push:name: Deploy to GitHub Pages
 
-    branches:on:
+    branches: [main, master]
 
-      - main
+permissions:on:
 
-      - master  push:
+  contents: write
 
-permissions:
+  pages: write  push:
 
-  contents: write    branches:on:on:
+jobs:
 
-  pages: write
+  deploy:    branches:on:
 
-jobs:      - main
+    runs-on: ubuntu-latest
 
-  build-and-deploy:
+    steps:      - main
 
+    - uses: actions/checkout@v3
+
+    - uses: subosito/flutter-action@v2      - master  push:
+
+      with:
+
+        flutter-version: '3.13.9'permissions:
+
+        channel: 'stable'
+
+    - run: flutter pub get  contents: write    branches:on:on:
+
+    - run: flutter build web --release --base-href '/' --dart-define=API_BASE_URL=https://alumno-backend-node.onrender.com
+
+    - uses: peaceiris/actions-gh-pages@v3  pages: write
+
+      with:
+
+        github_token: ${{ secrets.GITHUB_TOKEN }}jobs:      - main
+
+        publish_dir: ./build/web
+
+        force_orphan: true  build-and-deploy:
+
+        cname: app.carnetdigital.space
     runs-on: ubuntu-latest      - master  push:  push:
 
     steps:
